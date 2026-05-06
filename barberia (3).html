@@ -1,0 +1,3416 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KRÓM Barbería · Premium</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Raleway:wght@300;400;500;600&family=Cinzel:wght@400;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --gold: #D4AF37;
+      --gold-light: #F3E5AB;
+      --gold-dark: #AA7C11;
+      --gold-gradient: linear-gradient(135deg, #F3E5AB 0%, #D4AF37 50%, #AA7C11 100%);
+      --black: #050505;
+      --dark: #0f0f0f;
+      --dark2: #151515;
+      --dark3: #1a1a1a;
+      --gray: #999;
+      --light: #F5F0E8;
+      --white: #FFFFFF;
+      --transition: 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Raleway', sans-serif;
+      background: var(--black);
+      color: var(--white);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* CURSOR */
+    .cursor {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      background: var(--gold-light);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99999;
+      transition: transform 0.1s, width 0.3s, height 0.3s, background-color 0.3s;
+      mix-blend-mode: difference;
+      box-shadow: 0 0 10px var(--gold);
+    }
+
+    .cursor.hovered {
+      width: 12px;
+      height: 12px;
+      background: var(--white);
+    }
+
+    .cursor-ring {
+      position: fixed;
+      width: 40px;
+      height: 40px;
+      border: 1px solid rgba(212, 175, 55, 0.5);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99998;
+      transition: transform 0.15s, width 0.3s, height 0.3s, border-color 0.3s;
+      mix-blend-mode: difference;
+    }
+
+    .cursor-ring.hovered {
+      width: 60px;
+      height: 60px;
+      border-color: var(--gold-light);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--dark);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--gold-gradient);
+      border-radius: 4px;
+    }
+
+    /* BOTONES ARCHIVOS */
+    .btn-file {
+      display: inline-block;
+      background: rgba(212, 175, 55, 0.05);
+      border: 1px dashed var(--gold);
+      color: var(--gold);
+      padding: 0.6rem 1rem;
+      border-radius: 4px;
+      cursor: none;
+      transition: var(--transition);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-align: center;
+      width: 100%;
+    }
+
+    .btn-file:hover {
+      background: var(--gold);
+      color: var(--black);
+      border-style: solid;
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+    }
+
+    /* NAVBAR */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      padding: 0 5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 80px;
+      transition: var(--transition);
+    }
+
+    nav.scrolled {
+      background: rgba(5, 5, 5, 0.7);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+      height: 70px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .nav-logo {
+      font-family: 'Cinzel', serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      color: var(--gold);
+      text-decoration: none;
+    }
+
+    .nav-logo span {
+      color: var(--white);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: rgba(255, 255, 255, 0.75);
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      position: relative;
+      transition: color 0.3s;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: var(--gold);
+      transition: width 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: var(--gold);
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .nav-cta {
+      background: transparent;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      padding: 0.6rem 1.5rem;
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: none;
+      transition: var(--transition);
+      text-decoration: none;
+    }
+
+    .nav-cta:hover {
+      background: var(--gold);
+      color: var(--black);
+    }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: none;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 1px;
+      background: var(--gold);
+      transition: var(--transition);
+    }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hero-slides {
+      position: absolute;
+      inset: 0;
+    }
+
+    .hero-slide {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      transition: opacity 1.8s ease;
+      transform: scale(1.05);
+      transition: opacity 1.8s ease, transform 8s ease;
+    }
+
+    .hero-slide.active {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .hero-slide::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.8) 100%);
+    }
+
+    .hero-slide:nth-child(1) {
+      background-image: url('https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=1920&q=85');
+    }
+
+    .hero-slide:nth-child(2) {
+      background-image: url('https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=1920&q=85');
+    }
+
+    .hero-slide:nth-child(3) {
+      background-image: url('https://images.unsplash.com/photo-1587909209111-5097ee578ec3?w=1920&q=85');
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 0 1.5rem;
+      animation: heroFadeIn 1.2s ease 0.5s both;
+    }
+
+    @keyframes heroFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid rgba(201, 168, 76, 0.4);
+      padding: 0.5rem 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero h1 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(3.5rem, 8vw, 7.5rem);
+      font-weight: 700;
+      line-height: 0.95;
+      margin-bottom: 1rem;
+      letter-spacing: 0.05em;
+      text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .hero h1 .gold {
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+      display: inline-block;
+      filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.3));
+    }
+
+    .hero-sub {
+      font-size: clamp(0.9rem, 2vw, 1.1rem);
+      color: rgba(255, 255, 255, 0.65);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 2.5rem;
+      font-weight: 300;
+    }
+
+    .hero-btns {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: var(--gold-gradient);
+      color: var(--black);
+      border: none;
+      padding: 1rem 2.5rem;
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: none;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      border-radius: 2px;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.6s ease;
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .btn-primary:hover::before {
+      transform: translateX(100%);
+    }
+
+    .btn-primary span,
+    .btn-primary svg {
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(5px);
+      color: var(--white);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 1rem 2.5rem;
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: none;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: var(--transition);
+      border-radius: 2px;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: rgba(212, 175, 55, 0.05);
+      transform: translateY(-2px);
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      z-index: 2;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      100% {
+        transform: translateX(-50%) translateY(0)
+      }
+
+      50% {
+        transform: translateX(-50%) translateY(8px)
+      }
+    }
+
+    .hero-scroll span {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+    }
+
+    .hero-scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--gold), transparent);
+    }
+
+    /* SECTION BASE */
+    section {
+      padding: 6rem 5%;
+    }
+
+    .section-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 1.2rem;
+    }
+
+    .section-title em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .section-sub {
+      color: var(--gray);
+      font-size: 0.95rem;
+      line-height: 1.8;
+      max-width: 520px;
+    }
+
+    .divider {
+      width: 60px;
+      height: 1px;
+      background: var(--gold);
+      margin: 1.5rem 0;
+    }
+
+    /* ABOUT STRIP */
+    .about-strip {
+      background: var(--dark2);
+      border-top: 1px solid rgba(201, 168, 76, 0.15);
+      border-bottom: 1px solid rgba(201, 168, 76, 0.15);
+      padding: 3rem 5%;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+      text-align: center;
+    }
+
+    .strip-item {
+      padding: 1rem;
+    }
+
+    .strip-num {
+      font-family: 'Cinzel', serif;
+      font-size: 2.5rem;
+      color: var(--gold);
+      font-weight: 700;
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+
+    .strip-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      color: var(--gray);
+      text-transform: uppercase;
+    }
+
+    /* EXPERTS SECTION */
+    .experts {
+      background: var(--dark);
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .experts-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 600px;
+    }
+
+    .experts-media {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      position: relative;
+    }
+
+    .experts-media-item {
+      position: relative;
+      overflow: hidden;
+      min-height: 600px;
+    }
+
+    .experts-media-item img,
+    .experts-media-item video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .experts-media-item:hover img,
+    .experts-media-item:hover video {
+      transform: scale(1.05);
+    }
+
+    .experts-media-item .play-btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 64px;
+      height: 64px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      z-index: 2;
+    }
+
+    .experts-media-item .play-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    .experts-media-item .play-btn svg {
+      width: 24px;
+      height: 24px;
+      fill: white;
+      margin-left: 3px;
+    }
+
+    .experts-content {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 5rem 6rem;
+      background: var(--dark2);
+    }
+
+    .experts-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+    }
+
+    .experts-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 1.5rem;
+    }
+
+    .experts-title em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .experts-text {
+      color: var(--gray);
+      font-size: 0.95rem;
+      line-height: 1.8;
+      margin-bottom: 2rem;
+    }
+
+    .experts-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .experts-features li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .experts-features li svg {
+      width: 20px;
+      height: 20px;
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+
+    .experts-cta {
+      align-self: flex-start;
+    }
+
+    /* SERVICES */
+    .services {
+      background: var(--dark);
+    }
+
+    .services-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .services-header .section-sub {
+      margin: 0 auto;
+    }
+
+    .services-header .divider {
+      margin: 1.5rem auto;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      background: transparent;
+    }
+
+    .service-card {
+      background: var(--dark2);
+      padding: 0;
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition);
+      cursor: none;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 4px;
+    }
+
+    .service-card::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      width: 0;
+      background: var(--gold-gradient);
+      transition: width 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+      z-index: 2;
+    }
+
+    .service-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center bottom, rgba(212, 175, 55, 0.06) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.5s;
+      pointer-events: none;
+    }
+
+    .service-card:hover::before {
+      width: 100%;
+    }
+
+    .service-card:hover::after {
+      opacity: 1;
+    }
+
+    .service-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(212, 175, 55, 0.15);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(212, 175, 55, 0.06);
+    }
+
+    .service-img-wrap {
+      position: relative;
+      width: 100%;
+      height: 220px;
+      overflow: hidden;
+    }
+
+    .service-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: grayscale(40%) contrast(1.05);
+      transition: filter 0.7s, transform 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .service-card:hover .service-img {
+      filter: grayscale(0%) contrast(1);
+      transform: scale(1.08);
+    }
+
+    .service-img-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, var(--dark2) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .service-body {
+      padding: 1.5rem 2rem 2rem;
+    }
+
+    .service-number {
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      color: var(--gold);
+      letter-spacing: 0.2em;
+      margin-bottom: 0.75rem;
+      opacity: 0.6;
+    }
+
+    .service-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+    }
+
+    .service-desc {
+      font-size: 0.85rem;
+      color: var(--gray);
+      line-height: 1.7;
+      margin-bottom: 1.2rem;
+    }
+
+    .service-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .service-price {
+      font-family: 'Cinzel', serif;
+      font-size: 1.2rem;
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    .service-duration {
+      font-size: 0.75rem;
+      color: var(--gray);
+      letter-spacing: 0.08em;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .service-duration svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--gray);
+    }
+
+    .btn-reserve {
+      display: block;
+      width: 100%;
+      text-align: center;
+      border: 1px solid rgba(201, 168, 76, 0.3);
+      color: var(--gold);
+      padding: 0.7rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 600;
+      text-decoration: none;
+      transition: var(--transition);
+      cursor: none;
+      background: transparent;
+      font-family: 'Raleway', sans-serif;
+    }
+
+    .btn-reserve:hover {
+      background: var(--gold);
+      color: var(--black);
+      border-color: var(--gold);
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+    }
+
+    /* STAGGERED REVEAL */
+    .reveal-stagger .service-card:nth-child(1) {
+      transition-delay: 0s;
+    }
+
+    .reveal-stagger .service-card:nth-child(2) {
+      transition-delay: 0.12s;
+    }
+
+    .reveal-stagger .service-card:nth-child(3) {
+      transition-delay: 0.24s;
+    }
+
+    .reveal-stagger .service-card:nth-child(4) {
+      transition-delay: 0.36s;
+    }
+
+    .reveal-stagger .service-card:nth-child(5) {
+      transition-delay: 0.48s;
+    }
+
+    .reveal-stagger .service-card:nth-child(6) {
+      transition-delay: 0.6s;
+    }
+
+    /* BARBERS */
+    .barbers {
+      background: var(--black);
+    }
+
+    .barbers-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .barbers-header .section-sub {
+      margin: 0 auto;
+    }
+
+    .barbers-header .divider {
+      margin: 1.5rem auto;
+    }
+
+    .barbers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 2rem;
+    }
+
+    .barber-card {
+      position: relative;
+      overflow: hidden;
+      background: var(--dark2);
+      cursor: none;
+      transition: var(--transition);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .barber-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
+      border-color: rgba(212, 175, 55, 0.2);
+    }
+
+    .barber-img-wrap {
+      position: relative;
+      height: 380px;
+      overflow: hidden;
+    }
+
+    .barber-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      transition: transform 0.8s ease, filter 0.5s;
+      filter: grayscale(50%) contrast(1.1);
+    }
+
+    .barber-card:hover .barber-img {
+      transform: scale(1.08);
+      filter: grayscale(0%) contrast(1);
+    }
+
+    .barber-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, var(--black) 0%, rgba(0, 0, 0, 0.5) 40%, transparent 100%);
+      transition: opacity 0.5s;
+    }
+
+    .barber-card:hover .barber-overlay {
+      background: linear-gradient(to top, var(--black) 0%, rgba(212, 175, 55, 0.2) 50%, transparent 100%);
+    }
+
+    .barber-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 1.5rem;
+    }
+
+    .barber-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .barber-specialty {
+      font-size: 0.75rem;
+      color: var(--gold);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .barber-actions {
+      padding: 1rem 1.5rem;
+      background: var(--dark3);
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .barber-actions a {
+      flex: 1;
+      text-align: center;
+      padding: 0.6rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: 600;
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .barber-book {
+      border: 1px solid var(--gold);
+      color: var(--gold);
+    }
+
+    .barber-book:hover {
+      background: var(--gold);
+      color: var(--black);
+    }
+
+    .barber-wa {
+      border: 1px solid #25D366;
+      color: #25D366;
+    }
+
+    .barber-wa:hover {
+      background: #25D366;
+      color: var(--black);
+    }
+
+    /* BOOKING MODAL */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.92);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(8px);
+      padding: 1rem;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+
+    .modal {
+      background: rgba(20, 20, 20, 0.85);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      width: 100%;
+      max-width: 620px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8);
+      border-radius: 8px;
+    }
+
+    .modal-header {
+      padding: 2rem 2rem 1rem;
+      border-bottom: 1px solid rgba(201, 168, 76, 0.15);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .modal-title span {
+      color: var(--gold);
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--gray);
+      font-size: 1.5rem;
+      cursor: none;
+      transition: color 0.3s;
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      color: var(--gold);
+    }
+
+    .modal-body {
+      padding: 2rem;
+    }
+
+    .modal-step {
+      display: none;
+    }
+
+    .modal-step.active {
+      display: block;
+      animation: stepIn 0.3s ease;
+    }
+
+    @keyframes stepIn {
+      from {
+        opacity: 0;
+        transform: translateX(20px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0)
+      }
+    }
+
+    .step-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+
+    .step-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .booking-progress {
+      display: flex;
+      gap: 0.5rem;
+      padding: 1rem 2rem;
+      border-bottom: 1px solid rgba(201, 168, 76, 0.1);
+    }
+
+    .progress-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 1px solid var(--gold);
+      background: transparent;
+      transition: background 0.3s;
+    }
+
+    .progress-dot.done {
+      background: var(--gold);
+    }
+
+    .services-select-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .service-option {
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 1rem;
+      cursor: none;
+      transition: var(--transition);
+      background: var(--dark);
+    }
+
+    .service-option:hover,
+    .service-option.selected {
+      border-color: var(--gold);
+      background: rgba(201, 168, 76, 0.08);
+    }
+
+    .service-option.selected .opt-name {
+      color: var(--gold);
+    }
+
+    .opt-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .opt-price {
+      font-size: 0.8rem;
+      color: var(--gold);
+      font-family: 'Cinzel', serif;
+    }
+
+    .opt-duration {
+      font-size: 0.7rem;
+      color: var(--gray);
+    }
+
+    .barbers-select-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .barber-option {
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 1rem;
+      cursor: none;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--dark);
+    }
+
+    .barber-option:hover,
+    .barber-option.selected {
+      border-color: var(--gold);
+      background: rgba(201, 168, 76, 0.08);
+    }
+
+    .barber-option img {
+      width: 44px;
+      height: 44px;
+      object-fit: cover;
+      border-radius: 50%;
+      filter: grayscale(30%);
+    }
+
+    .barber-option .b-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .barber-option .b-spec {
+      font-size: 0.7rem;
+      color: var(--gold);
+    }
+
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      color: var(--gray);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+    }
+
+    .form-input,
+    .form-select {
+      width: 100%;
+      background: var(--dark);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--white);
+      padding: 0.85rem 1rem;
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.9rem;
+      transition: border-color 0.3s;
+      outline: none;
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+      border-color: var(--gold);
+    }
+
+    .form-select option {
+      background: var(--dark2);
+    }
+
+    .times-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .time-slot {
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: var(--dark);
+      color: var(--white);
+      padding: 0.6rem;
+      text-align: center;
+      font-size: 0.8rem;
+      cursor: none;
+      transition: var(--transition);
+      font-family: 'Raleway', sans-serif;
+    }
+
+    .time-slot:hover,
+    .time-slot.selected {
+      border-color: var(--gold);
+      background: rgba(201, 168, 76, 0.12);
+      color: var(--gold);
+    }
+
+    .time-slot.taken {
+      border-color: transparent;
+      background: rgba(255, 255, 255, 0.03);
+      color: rgba(255, 255, 255, 0.2);
+      cursor: not-allowed;
+      text-decoration: line-through;
+    }
+
+    .modal-footer {
+      padding: 1.5rem 2rem;
+      border-top: 1px solid rgba(201, 168, 76, 0.1);
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+    }
+
+    .btn-modal-next {
+      background: var(--gold);
+      color: var(--black);
+      border: none;
+      padding: 0.85rem 2rem;
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: none;
+      transition: var(--transition);
+    }
+
+    .btn-modal-next:hover {
+      background: var(--gold-light);
+    }
+
+    .btn-modal-back {
+      background: transparent;
+      color: var(--gray);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 0.85rem 1.5rem;
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      cursor: none;
+      transition: var(--transition);
+    }
+
+    .btn-modal-back:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .booking-summary {
+      background: var(--dark);
+      border: 1px solid rgba(201, 168, 76, 0.2);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.85rem;
+    }
+
+    .summary-row:last-child {
+      border: none;
+    }
+
+    .summary-key {
+      color: var(--gray);
+    }
+
+    .summary-val {
+      font-weight: 600;
+    }
+
+    .summary-total .summary-val {
+      color: var(--gold);
+      font-family: 'Cinzel', serif;
+      font-size: 1rem;
+    }
+
+    .success-state {
+      text-align: center;
+      padding: 2rem 0;
+    }
+
+    .success-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .success-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .success-sub {
+      color: var(--gray);
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+
+    /* TESTIMONIALS */
+    .testimonials {
+      background: var(--dark2);
+    }
+
+    .testimonials-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .testimonials-header .divider {
+      margin: 1.5rem auto;
+    }
+
+    .testimonials-track-wrap {
+      overflow: hidden;
+    }
+
+    .testimonials-track {
+      display: flex;
+      gap: 1.5rem;
+      animation: scrollTrack 30s linear infinite;
+      width: max-content;
+    }
+
+    .testimonials-track:hover {
+      animation-play-state: paused;
+    }
+
+    @keyframes scrollTrack {
+      0% {
+        transform: translateX(0)
+      }
+
+      100% {
+        transform: translateX(-50%)
+      }
+    }
+
+    .testimonial-card {
+      background: rgba(20, 20, 20, 0.6);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(212, 175, 55, 0.1);
+      padding: 2.5rem;
+      width: 380px;
+      flex-shrink: 0;
+      position: relative;
+      transition: var(--transition);
+      border-radius: 4px;
+    }
+
+    .testimonial-card:hover {
+      border-color: rgba(212, 175, 55, 0.4);
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      background: rgba(25, 25, 25, 0.8);
+    }
+
+    .testimonial-card::before {
+      content: '"';
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      font-family: 'Playfair Display', serif;
+      font-size: 5rem;
+      color: rgba(201, 168, 76, 0.08);
+      line-height: 1;
+    }
+
+    .test-stars {
+      color: var(--gold);
+      font-size: 0.8rem;
+      margin-bottom: 1rem;
+      letter-spacing: 0.1em;
+    }
+
+    .test-text {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.75);
+      line-height: 1.75;
+      margin-bottom: 1.5rem;
+    }
+
+    .test-author {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .test-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      filter: grayscale(20%);
+    }
+
+    .test-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .test-date {
+      font-size: 0.7rem;
+      color: var(--gray);
+    }
+
+    /* GALLERY */
+    .gallery {
+      background: var(--black);
+      padding: 6rem 0;
+    }
+
+    .gallery-header {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding: 0 5%;
+    }
+
+    .gallery-header .divider {
+      margin: 1.5rem auto;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      grid-template-rows: repeat(2, 240px);
+      gap: 4px;
+    }
+
+    .gallery-item {
+      overflow: hidden;
+      position: relative;
+      cursor: none;
+    }
+
+    .gallery-item:nth-child(1) {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+
+    .gallery-item:nth-child(2) {
+      grid-column: span 2;
+    }
+
+    .gallery-item:nth-child(3) {
+      grid-column: span 2;
+    }
+
+    .gallery-item:nth-child(4) {
+      grid-column: span 1;
+    }
+
+    .gallery-item:nth-child(5) {
+      grid-column: span 1;
+    }
+
+    .gallery-item:nth-child(6) {
+      grid-column: span 2;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease, filter 0.4s;
+      filter: grayscale(20%);
+    }
+
+    .gallery-item:hover img {
+      transform: scale(1.08);
+      filter: grayscale(0%);
+    }
+
+    .gallery-item::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(201, 168, 76, 0);
+      transition: background 0.4s;
+    }
+
+    .gallery-item:hover::after {
+      background: rgba(201, 168, 76, 0.08);
+    }
+
+    /* LOCATION */
+    .location {
+      background: var(--dark);
+    }
+
+    .location-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .location-map {
+      height: 420px;
+      border: 1px solid rgba(201, 168, 76, 0.2);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .location-map iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      filter: grayscale(60%) invert(90%) hue-rotate(180deg);
+    }
+
+    .location-map::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      box-shadow: inset 0 0 40px rgba(10, 10, 10, 0.5);
+    }
+
+    .location-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .info-item {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .info-icon {
+      width: 44px;
+      height: 44px;
+      border: 1px solid rgba(201, 168, 76, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold);
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .info-icon svg {
+      stroke: var(--gold);
+    }
+
+    .info-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 0.3rem;
+    }
+
+    .info-val {
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .btn-directions {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      padding: 0.85rem 2rem;
+      text-decoration: none;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .btn-directions:hover {
+      background: var(--gold);
+      color: var(--black);
+    }
+
+    /* CONTACT */
+    .contact {
+      background: var(--black);
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+    }
+
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .contact-info-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      justify-content: center;
+    }
+
+    .contact-social {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .social-link {
+      width: 44px;
+      height: 44px;
+      border: 1px solid rgba(201, 168, 76, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray);
+      text-decoration: none;
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+
+    .social-link:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: rgba(201, 168, 76, 0.08);
+    }
+
+    .btn-submit {
+      background: var(--gold);
+      color: var(--black);
+      border: none;
+      padding: 1rem 2rem;
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: none;
+      transition: var(--transition);
+      align-self: flex-start;
+    }
+
+    .btn-submit:hover {
+      background: var(--gold-light);
+    }
+
+    /* FOOTER */
+    footer {
+      background: var(--dark2);
+      border-top: 1px solid rgba(201, 168, 76, 0.15);
+      padding: 3rem 5%;
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 3rem;
+    }
+
+    .footer-brand .nav-logo {
+      display: block;
+      margin-bottom: 1rem;
+    }
+
+    .footer-brand p {
+      font-size: 0.85rem;
+      color: var(--gray);
+      line-height: 1.7;
+      max-width: 240px;
+    }
+
+    .footer-col-title {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 1.2rem;
+      font-weight: 600;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .footer-links a {
+      color: var(--gray);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.3s;
+    }
+
+    .footer-links a:hover {
+      color: var(--gold);
+    }
+
+    .footer-bottom {
+      background: var(--dark);
+      padding: 1.2rem 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.75rem;
+      color: var(--gray);
+    }
+
+    .footer-bottom a {
+      color: var(--gold);
+      text-decoration: none;
+    }
+
+    /* WHATSAPP FLOAT */
+    .wa-float {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 900;
+      width: 56px;
+      height: 56px;
+      background: #25D366;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+      transition: var(--transition);
+      animation: pulse 2.5s infinite;
+    }
+
+    .wa-float:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 30px rgba(37, 211, 102, 0.6);
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4)
+      }
+
+      50% {
+        box-shadow: 0 4px 30px rgba(37, 211, 102, 0.7)
+      }
+    }
+
+    .wa-float svg {
+      width: 28px;
+      height: 28px;
+      fill: white;
+    }
+
+    /* ADMIN */
+    .admin-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 3000;
+      background: var(--black);
+      display: none;
+      overflow-y: auto;
+    }
+
+    .admin-overlay.open {
+      display: block;
+      animation: fadeIn 0.3s;
+    }
+
+    .admin-login {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .admin-login-box {
+      background: var(--dark2);
+      border: 1px solid rgba(201, 168, 76, 0.2);
+      padding: 3rem;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .admin-login-logo {
+      font-family: 'Cinzel', serif;
+      font-size: 1.5rem;
+      color: var(--gold);
+      text-align: center;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.15em;
+    }
+
+    .admin-login-sub {
+      text-align: center;
+      color: var(--gray);
+      font-size: 0.8rem;
+      margin-bottom: 2rem;
+    }
+
+    .admin-nav {
+      background: var(--dark2);
+      border-bottom: 1px solid rgba(201, 168, 76, 0.15);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .admin-nav-logo {
+      font-family: 'Cinzel', serif;
+      color: var(--gold);
+      font-size: 1.1rem;
+      letter-spacing: 0.1em;
+    }
+
+    .admin-nav-links {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .admin-tab-btn {
+      background: none;
+      border: none;
+      color: var(--gray);
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: none;
+      padding: 0.5rem 1rem;
+      transition: color 0.3s;
+      border-bottom: 2px solid transparent;
+    }
+
+    .admin-tab-btn.active {
+      color: var(--gold);
+      border-bottom-color: var(--gold);
+    }
+
+    .admin-tab-btn:hover {
+      color: var(--gold);
+    }
+
+    .admin-close-btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--gray);
+      padding: 0.5rem 1rem;
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.75rem;
+      cursor: none;
+      transition: var(--transition);
+    }
+
+    .admin-close-btn:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .admin-body {
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .admin-tab {
+      display: none;
+    }
+
+    .admin-tab.active {
+      display: block;
+      animation: stepIn 0.3s;
+    }
+
+    .admin-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .metric-card {
+      background: var(--dark2);
+      border: 1px solid rgba(201, 168, 76, 0.1);
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .metric-val {
+      font-family: 'Cinzel', serif;
+      font-size: 2rem;
+      color: var(--gold);
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .metric-label {
+      font-size: 0.7rem;
+      color: var(--gray);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .admin-table-wrap {
+      overflow-x: auto;
+    }
+
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    .admin-table th {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border-bottom: 1px solid rgba(201, 168, 76, 0.2);
+      background: var(--dark2);
+    }
+
+    .admin-table td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .admin-table tr:hover td {
+      background: rgba(201, 168, 76, 0.03);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.6rem;
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .badge-pending {
+      border: 1px solid #F59E0B;
+      color: #F59E0B;
+    }
+
+    .badge-confirmed {
+      border: 1px solid #10B981;
+      color: #10B981;
+    }
+
+    .badge-done {
+      border: 1px solid var(--gold);
+      color: var(--gold);
+    }
+
+    .admin-section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      margin-bottom: 1.2rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(201, 168, 76, 0.15);
+    }
+
+    .admin-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      max-width: 520px;
+    }
+
+    .admin-form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    /* REVEAL */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px) scale(0.98);
+      transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    /* MOBILE NAV */
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: var(--black);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+    }
+
+    .mobile-menu.open {
+      display: flex;
+      animation: fadeIn 0.3s;
+    }
+
+    .mobile-menu a {
+      font-family: 'Cinzel', serif;
+      font-size: 1.5rem;
+      color: var(--white);
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      transition: color 0.3s;
+    }
+
+    .mobile-menu a:hover {
+      color: var(--gold);
+    }
+
+    .mobile-menu-close {
+      position: absolute;
+      top: 2rem;
+      right: 2rem;
+      background: none;
+      border: none;
+      color: var(--gold);
+      font-size: 2rem;
+      cursor: none;
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--dark2);
+      border: 1px solid var(--gold);
+      color: var(--white);
+      padding: 1rem 2rem;
+      font-size: 0.85rem;
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+
+    /* RESPONSIVE */
+    @media(max-width:1100px) {
+      footer {
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+      }
+
+      .services-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .experts-inner {
+        grid-template-columns: 1fr;
+      }
+
+      .experts-media {
+        min-height: 350px;
+      }
+
+      .experts-media-item {
+        min-height: 350px;
+      }
+
+      .experts-content {
+        padding: 3rem 5%;
+      }
+
+      .gallery-grid {
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: auto;
+      }
+
+      .gallery-item:nth-child(n) {
+        grid-column: span 1;
+        grid-row: span 1;
+      }
+
+      .gallery-item:nth-child(1) {
+        grid-column: span 2;
+      }
+
+      .admin-metrics {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media(max-width:768px) {
+
+      .nav-links,
+      .nav-cta {
+        display: none;
+      }
+
+      .hamburger {
+        display: flex;
+      }
+
+      .about-strip {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .services-select-grid,
+      .barbers-select-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .times-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .location-grid,
+      .contact-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      footer {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+      }
+
+      .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .gallery-item:nth-child(n) {
+        grid-column: span 1;
+        grid-row: span 1;
+        height: 160px;
+      }
+
+      .gallery-item:nth-child(1) {
+        grid-column: span 2;
+        height: 200px;
+      }
+
+      .services-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .barbers-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .experts-media {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+
+      .experts-media-item {
+        min-height: 250px;
+      }
+
+      .admin-metrics {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .admin-nav-links {
+        gap: 0.3rem;
+      }
+
+      .admin-tab-btn {
+        padding: 0.4rem 0.5rem;
+        font-size: 0.65rem;
+      }
+
+      body {
+        cursor: auto;
+      }
+
+      .cursor,
+      .cursor-ring {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- CUSTOM CURSOR -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- WHATSAPP FLOAT -->
+  <a class="wa-float"
+    href="https://wa.me/573146966976?text=Hola%2C%20%C2%BFen%20qu%C3%A9%20podemos%20ayudarte%3F%20Tambi%C3%A9n%20puedes%20agendar%20tu%20cita%20directamente%20desde%20la%20p%C3%A1gina."
+    target="_blank" aria-label="WhatsApp">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+    </svg>
+  </a>
+
+  <!-- NAVBAR -->
+  <nav id="navbar">
+    <a class="nav-logo" href="#hero">KR<span>Ó</span>M</a>
+    <ul class="nav-links">
+      <li><a href="#services">Servicios</a></li>
+      <li><a href="#barbers">Barberos</a></li>
+      <li><a href="#gallery">Galería</a></li>
+      <li><a href="#location">Ubicación</a></li>
+      <li><a href="#contact">Contacto</a></li>
+      <li><a href="#" onclick="openAdmin();return false;">Admin</a></li>
+    </ul>
+    <a class="nav-cta" href="#" onclick="openModal();return false;">Reservar Cita</a>
+    <div class="hamburger" id="hamburger" onclick="document.getElementById('mobileMenu').classList.toggle('open')">
+      <span></span><span></span><span></span>
+    </div>
+  </nav>
+
+  <!-- MOBILE MENU -->
+  <div class="mobile-menu" id="mobileMenu">
+    <button class="mobile-menu-close"
+      onclick="document.getElementById('mobileMenu').classList.remove('open')">✕</button>
+    <a href="#services" onclick="document.getElementById('mobileMenu').classList.remove('open')">Servicios</a>
+    <a href="#barbers" onclick="document.getElementById('mobileMenu').classList.remove('open')">Barberos</a>
+    <a href="#gallery" onclick="document.getElementById('mobileMenu').classList.remove('open')">Galería</a>
+    <a href="#location" onclick="document.getElementById('mobileMenu').classList.remove('open')">Ubicación</a>
+    <a href="#contact" onclick="document.getElementById('mobileMenu').classList.remove('open')">Contacto</a>
+    <a href="#" onclick="openModal();document.getElementById('mobileMenu').classList.remove('open');return false;"
+      style="color:var(--gold);border:1px solid var(--gold);padding:0.75rem 2rem;font-size:0.9rem">Reservar Cita</a>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-slides">
+      <div class="hero-slide active"></div>
+      <div class="hero-slide"></div>
+      <div class="hero-slide"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-badge">Barbería Premium · Desde 2018</div>
+      <h1>EL ARTE<br>DE SER <span class="gold">KRÓM</span></h1>
+      <p class="hero-sub">Precisión · Estilo · Confianza</p>
+      <div class="hero-btns">
+        <a class="btn-primary" href="#" onclick="openModal();return false;">
+          <span>Reservar Cita</span>
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </a>
+        <a class="btn-secondary" href="https://wa.me/573146966976?text=Hola%2C%20quiero%20informaci%C3%B3n"
+          target="_blank">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+            <path
+              d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+          </svg>
+          <span>WhatsApp</span>
+        </a>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <div class="hero-scroll-line"></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+  <!-- STATS STRIP -->
+  <div class="about-strip">
+    <div class="strip-item reveal">
+      <span class="strip-num">+2K</span>
+      <span class="strip-label">Clientes satisfechos</span>
+    </div>
+    <div class="strip-item reveal">
+      <span class="strip-num">6+</span>
+      <span class="strip-label">Años de experiencia</span>
+    </div>
+    <div class="strip-item reveal">
+      <span class="strip-num">4</span>
+      <span class="strip-label">Barberos expertos</span>
+    </div>
+    <div class="strip-item reveal">
+      <span class="strip-num">4.9</span>
+      <span class="strip-label">Rating promedio</span>
+    </div>
+  </div>
+
+  <!-- EXPERTS SECTION -->
+  <section class="experts" id="experts">
+    <div class="experts-inner">
+      <div class="experts-media">
+        <div class="experts-media-item">
+          <img src="https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=800&q=85" alt="Barbero trabajando">
+        </div>
+        <div class="experts-media-item">
+          <img src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=800&q=85" alt="Proceso de barbería">
+          <div class="play-btn" onclick="this.style.display='none'">
+            <svg viewBox="0 0 24 24">
+              <polygon points="5,3 19,12 5,21"></polygon>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="experts-content reveal">
+        <div class="experts-label">Come and Try</div>
+        <h2 class="experts-title">Somos expertos en el cuidado del <em>hombre</em></h2>
+        <p class="experts-text">Ven y sorpréndete de cada detalle que tenemos preparado para ti, cada momento es <em
+            style="color:var(--gold);font-style:italic">único.</em></p>
+        <ul class="experts-features">
+          <li>
+            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path d="M5 13l4 4L19 7" />
+            </svg>
+            Profesionales a tu servicio
+          </li>
+          <li>
+            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path d="M5 13l4 4L19 7" />
+            </svg>
+            Bebidas incluidas en tu experiencia
+          </li>
+          <li>
+            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path d="M5 13l4 4L19 7" />
+            </svg>
+            Juegos y espacios para divertirte
+          </li>
+        </ul>
+        <a class="btn-primary experts-cta" href="#" onclick="openModal();return false;">
+          <span>Reserva tu cita</span>
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section class="services" id="services">
+    <div class="services-header reveal">
+      <span class="section-label">Lo que ofrecemos</span>
+      <h2 class="section-title">Nuestros <em>Servicios</em></h2>
+      <div class="divider"></div>
+      <p class="section-sub">Cada servicio es una experiencia diseñada para resaltar tu estilo y personalidad única.</p>
+    </div>
+    <div class="services-grid reveal-stagger" id="servicesGrid">
+      <!-- Populated by JS -->
+    </div>
+  </section>
+
+  <!-- BARBERS -->
+  <section class="barbers" id="barbers">
+    <div class="barbers-header reveal">
+      <span class="section-label">Nuestro equipo</span>
+      <h2 class="section-title">Los <em>Maestros</em></h2>
+      <div class="divider"></div>
+      <p class="section-sub">Cada barbero es un artista con años de formación y pasión por el estilo masculino.</p>
+    </div>
+    <div class="barbers-grid" id="barbersGrid">
+      <!-- Populated by JS -->
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials" id="testimonials">
+    <div class="testimonials-header reveal">
+      <span class="section-label">Lo que dicen</span>
+      <h2 class="section-title">Clientes que <em>Confían</em></h2>
+      <div class="divider"></div>
+    </div>
+    <div class="testimonials-track-wrap">
+      <div class="testimonials-track" id="testimonialsTrack">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section class="gallery" id="gallery">
+    <div class="gallery-header reveal">
+      <span class="section-label">Nuestro trabajo</span>
+      <h2 class="section-title">La <em>Galería</em></h2>
+      <div class="divider"></div>
+    </div>
+    <div class="gallery-grid">
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=800&q=80"
+          alt=""></div>
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=800&q=80"
+          alt=""></div>
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=800&q=80"
+          alt=""></div>
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1595152452543-e5fc28ebc2b8?w=800&q=80"
+          alt=""></div>
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=800&q=80"
+          alt=""></div>
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=800&q=80"
+          alt=""></div>
+    </div>
+  </section>
+
+  <!-- LOCATION -->
+  <section class="location" id="location">
+    <div class="location-grid">
+      <div class="location-map reveal">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3927.0!2d-74.9213!3d10.9239!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTDCsDU1JzI2LjAiTiA3NMKwNTUnMTYuNyJX!5e0!3m2!1ses!2sco!4v1234567890"
+          allowfullscreen loading="lazy">
+        </iframe>
+      </div>
+      <div class="location-info reveal">
+        <div>
+          <span class="section-label">Encuéntranos</span>
+          <h2 class="section-title">Nuestra <em>Ubicación</em></h2>
+          <div class="divider"></div>
+        </div>
+        <div class="info-item">
+          <div class="info-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"
+              viewBox="0 0 24 24">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg></div>
+          <div>
+            <div class="info-label">Dirección</div>
+            <div class="info-val">Urbanización El Parque<br>Soledad, Atlántico, Colombia</div>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"
+              viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 6v6l4 2" />
+            </svg></div>
+          <div>
+            <div class="info-label">Horario</div>
+            <div class="info-val">Lunes – Sábado: 8:00am – 8:00pm<br>Domingo: 9:00am – 4:00pm</div>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"
+              viewBox="0 0 24 24">
+              <path
+                d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
+            </svg></div>
+          <div>
+            <div class="info-label">Contacto</div>
+            <div class="info-val">+57 314 696 6976</div>
+          </div>
+        </div>
+        <a class="btn-directions" href="https://maps.google.com/?q=Urbanización+El+Parque+Soledad+Atlantico+Colombia"
+          target="_blank">
+          <span>↗</span> Cómo llegar
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact" id="contact">
+    <div class="contact-grid">
+      <div class="reveal">
+        <span class="section-label">Contáctanos</span>
+        <h2 class="section-title">Hablemos de tu <em>Estilo</em></h2>
+        <div class="divider"></div>
+        <div class="contact-info-block">
+          <p style="color:var(--gray);font-size:0.9rem;line-height:1.8">¿Tienes preguntas o quieres una cita especial?
+            Estamos aquí para atenderte.</p>
+          <div class="info-item">
+            <div class="info-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"
+                viewBox="0 0 24 24">
+                <path
+                  d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
+              </svg></div>
+            <div>
+              <div class="info-label">WhatsApp</div>
+              <div class="info-val">+57 314 696 6976</div>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"
+                viewBox="0 0 24 24">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                <path d="M22 6l-10 7L2 6" />
+              </svg></div>
+            <div>
+              <div class="info-label">Email</div>
+              <div class="info-val">info@krombarberia.com</div>
+            </div>
+          </div>
+          <div>
+            <div class="info-label" style="margin-bottom:0.75rem">Redes Sociales</div>
+            <div class="contact-social">
+              <a class="social-link" href="#" title="Instagram">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                  <path
+                    d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                </svg>
+              </a>
+              <a class="social-link" href="#" title="Facebook">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                  <path
+                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                </svg>
+              </a>
+              <a class="social-link" href="#" title="TikTok">
+                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                  <path
+                    d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="contact-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Nombre</label>
+              <input class="form-input" type="text" placeholder="Tu nombre">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Teléfono</label>
+              <input class="form-input" type="tel" placeholder="+57 300 000 0000">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input class="form-input" type="email" placeholder="tu@email.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Mensaje</label>
+            <textarea class="form-input" rows="4" placeholder="¿En qué podemos ayudarte?"></textarea>
+          </div>
+          <button class="btn-submit" onclick="showToast('Mensaje enviado. Te contactaremos pronto.')">Enviar
+            Mensaje</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-brand">
+      <a class="nav-logo" href="#hero" style="font-size:1.4rem">KR<span style="color:var(--white)">Ó</span>M</a>
+      <p>Barbería premium en Soledad, Atlántico. Transformamos tu estilo con precisión y arte.</p>
+    </div>
+    <div>
+      <div class="footer-col-title">Navegación</div>
+      <ul class="footer-links">
+        <li><a href="#services">Servicios</a></li>
+        <li><a href="#barbers">Barberos</a></li>
+        <li><a href="#gallery">Galería</a></li>
+        <li><a href="#testimonials">Testimonios</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Horario</div>
+      <ul class="footer-links">
+        <li><a href="#">Lun–Vie: 8am – 8pm</a></li>
+        <li><a href="#">Sábado: 8am – 8pm</a></li>
+        <li><a href="#">Domingo: 9am – 4pm</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Contacto</div>
+      <ul class="footer-links">
+        <li><a href="tel:+573146966976">+57 314 696 6976</a></li>
+        <li><a href="#">info@krombarberia.com</a></li>
+        <li><a href="#location">Urb. El Parque, Soledad</a></li>
+        <li><a href="#" onclick="openAdmin();return false;" style="color:rgba(255,255,255,0.3);font-size:0.75rem">Panel
+            Admin</a></li>
+      </ul>
+    </div>
+  </footer>
+  <div class="footer-bottom">
+    <span>© 2024 KRÓM Barbería. Todos los derechos reservados.</span>
+    <span>Desarrollado con <span style="color:var(--gold)">♥</span> en Barranquilla</span>
+  </div>
+
+  <!-- BOOKING MODAL -->
+  <div class="modal-overlay" id="bookingModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <div
+            style="font-size:0.65rem;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;margin-bottom:0.3rem">
+            Sistema de Reservas</div>
+          <div class="modal-title">Agendar <span>Cita</span></div>
+        </div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="booking-progress" id="bookingProgress">
+        <div class="progress-dot done"></div>
+        <div class="progress-dot"></div>
+        <div class="progress-dot"></div>
+        <div class="progress-dot"></div>
+        <div class="progress-dot"></div>
+      </div>
+      <div class="modal-body">
+        <!-- STEP 1: Service -->
+        <div class="modal-step active" id="step1">
+          <div class="step-label">Paso 1 de 4</div>
+          <div class="step-title">Elige tu Servicio</div>
+          <div class="services-select-grid" id="servicesSelectGrid"></div>
+        </div>
+        <!-- STEP 2: Barber -->
+        <div class="modal-step" id="step2">
+          <div class="step-label">Paso 2 de 4</div>
+          <div class="step-title">Elige tu Barbero</div>
+          <div class="barbers-select-grid" id="barbersSelectGrid"></div>
+        </div>
+        <!-- STEP 3: Date & Time -->
+        <div class="modal-step" id="step3">
+          <div class="step-label">Paso 3 de 4</div>
+          <div class="step-title">Elige Fecha y Hora</div>
+          <div class="form-group">
+            <label class="form-label">Fecha</label>
+            <input class="form-input" type="date" id="bookingDate" onchange="loadTimeSlots()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Horario disponible</label>
+            <div class="times-grid" id="timesGrid"></div>
+          </div>
+        </div>
+        <!-- STEP 4: Customer info -->
+        <div class="modal-step" id="step4">
+          <div class="step-label">Paso 4 de 4</div>
+          <div class="step-title">Tus Datos</div>
+          <div class="form-group"><label class="form-label">Nombre completo</label><input class="form-input" type="text"
+              id="clientName" placeholder="Tu nombre"></div>
+          <div class="form-group"><label class="form-label">WhatsApp</label><input class="form-input" type="tel"
+              id="clientPhone" placeholder="+57 300 000 0000"></div>
+          <div class="booking-summary" id="bookingSummary"></div>
+        </div>
+        <!-- STEP 5: Success -->
+        <div class="modal-step" id="step5">
+          <div class="success-state">
+            <div class="success-icon"><svg width="48" height="48" fill="none" stroke="var(--gold)" stroke-width="1.5"
+                viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round" />
+              </svg></div>
+            <div class="success-title">¡Cita Confirmada!</div>
+            <p class="success-sub">Tu reserva ha sido registrada.<br>El barbero recibirá la notificación por
+              WhatsApp.<br><br>Te esperamos en KRÓM Barbería.</p>
+            <br>
+            <button class="btn-modal-next" onclick="closeModal()" style="margin:0 auto;display:block">Cerrar</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" id="modalFooter">
+        <button class="btn-modal-back" id="btnBack" onclick="prevStep()" style="display:none">← Atrás</button>
+        <button class="btn-modal-next" id="btnNext" onclick="nextStep()">Continuar →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN -->
+  <div class="admin-overlay" id="adminOverlay">
+    <!-- LOGIN -->
+    <div class="admin-login" id="adminLogin">
+      <div class="admin-login-box">
+        <div class="admin-login-logo">KRÓM</div>
+        <div class="admin-login-sub">Panel Administrativo</div>
+        <div class="form-group"><label class="form-label">Usuario</label><input class="form-input" type="text"
+            id="adminUser" placeholder="admin"></div>
+        <div class="form-group"><label class="form-label">Contraseña</label><input class="form-input" type="password"
+            id="adminPass" placeholder="••••••••"></div>
+        <button class="btn-modal-next" style="width:100%;margin-top:0.5rem" onclick="doLogin()">Ingresar</button>
+        <div style="text-align:center;margin-top:1rem"><button onclick="closeAdmin()"
+            style="background:none;border:none;color:var(--gray);cursor:none;font-size:0.8rem;font-family:Raleway,sans-serif">←
+            Volver al sitio</button></div>
+      </div>
+    </div>
+    <!-- DASHBOARD -->
+    <div id="adminDashboard" style="display:none">
+      <div class="admin-nav">
+        <div class="admin-nav-logo">KRÓM · Admin</div>
+        <div class="admin-nav-links">
+          <button class="admin-tab-btn active" onclick="showAdminTab('reservas',this)">Reservas</button>
+          <button class="admin-tab-btn" onclick="showAdminTab('ventas',this)">Ventas</button>
+          <button class="admin-tab-btn" onclick="showAdminTab('clientes',this)">Clientes</button>
+          <button class="admin-tab-btn" onclick="showAdminTab('servicios',this)">Servicios</button>
+          <button class="admin-tab-btn" onclick="showAdminTab('barberos',this)">Barberos</button>
+        </div>
+        <button class="admin-close-btn" onclick="closeAdmin()">✕ Cerrar</button>
+      </div>
+      <div class="admin-body">
+        <!-- RESERVAS TAB -->
+        <div class="admin-tab active" id="tab-reservas">
+          <div class="admin-metrics" id="adminMetrics"></div>
+          <div class="admin-section-title">Reservas del Día</div>
+          <div class="admin-table-wrap">
+            <table class="admin-table" id="reservasTable">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Cliente</th>
+                  <th>Servicio</th>
+                  <th>Barbero</th>
+                  <th>Fecha</th>
+                  <th>Hora</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody id="reservasTbody"></tbody>
+            </table>
+          </div>
+          <br>
+          <div class="admin-section-title">Registrar Corte / Ingreso</div>
+          <div class="admin-form">
+            <div class="admin-form-row">
+              <div class="form-group"><label class="form-label">Servicio realizado</label>
+                <select class="form-select" id="regService">
+                  <div class="form-group"><label class="form-label">Servicio realizado</label>
+                    <select class="form-select" id="regService">
+                    </select>
+                  </div>
+                  <div class="form-group"><label class="form-label">Barbero</label>
+                    <select class="form-select" id="regBarber">
+                    </select>
+                  </div>
+              </div>
+              <div class="admin-form-row">
+                <div class="form-group"><label class="form-label">Monto cobrado (COP)</label><input class="form-input"
+                    type="number" id="regAmount" placeholder="25000"></div>
+                <div class="form-group"><label class="form-label">Método de pago</label>
+                  <select class="form-select" id="regPago">
+                    <option>Efectivo</option>
+                    <option>Nequi</option>
+                    <option>Daviplata</option>
+                    <option>Bancolombia</option>
+                    <option>Tarjeta</option>
+                  </select>
+                </div>
+              </div>
+              <button class="btn-modal-next" onclick="registrarCorte()">Registrar Corte</button>
+            </div>
+          </div>
+          <!-- VENTAS TAB -->
+          <div class="admin-tab" id="tab-ventas">
+            <div class="admin-metrics" id="ventasMetrics"></div>
+            <div class="admin-section-title">Historial de Ingresos</div>
+            <div class="admin-table-wrap">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Servicio</th>
+                    <th>Barbero</th>
+                    <th>Monto</th>
+                    <th>Pago</th>
+                  </tr>
+                </thead>
+                <tbody id="ventasTbody"></tbody>
+              </table>
+            </div>
+          </div>
+          <!-- CLIENTES TAB -->
+          <div class="admin-tab" id="tab-clientes">
+            <div class="admin-section-title">Gestión de Clientes</div>
+            <div class="admin-table-wrap">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>WhatsApp</th>
+                    <th>Visitas</th>
+                    <th>Último servicio</th>
+                    <th>Barbero favorito</th>
+                  </tr>
+                </thead>
+                <tbody id="clientesTbody"></tbody>
+              </table>
+            </div>
+          </div>
+          <!-- SERVICIOS TAB -->
+          <div class="admin-tab" id="tab-servicios">
+            <div class="admin-section-title">Editar Servicios y Precios</div>
+            <div id="serviciosAdmin"></div>
+          </div>
+          <!-- BARBEROS TAB -->
+          <div class="admin-tab" id="tab-barberos">
+            <div class="admin-section-title">Gestión de Barberos</div>
+            <div id="barberosAdmin"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+      // ============ DATA ============
+      let SERVICES = JSON.parse(localStorage.getItem('krom_services')) || [
+        { id: 1, name: 'Corte Clásico', price: 25000, duration: '30 min', desc: 'Corte tradicional con acabado perfecto y definición de líneas.', img: 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=600&q=80', icon: '✂️' },
+        { id: 2, name: 'Fade + Diseño', price: 35000, duration: '45 min', desc: 'Degradado moderno con diseños personalizados a tu estilo.', img: 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=600&q=80', icon: '🎨' },
+        { id: 3, name: 'Barba Completa', price: 20000, duration: '25 min', desc: 'Perfilado, arreglo y hidratación de barba con productos premium.', img: 'https://images.unsplash.com/photo-1595152452543-e5fc28ebc2b8?w=600&q=80', icon: '🪒' },
+        { id: 4, name: 'Corte + Barba', price: 45000, duration: '60 min', desc: 'Combo completo: corte a tu medida y barba perfectamente trabajada.', img: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=600&q=80', icon: '⭐' },
+        { id: 5, name: 'Cejas', price: 10000, duration: '15 min', desc: 'Diseño y depilación de cejas para un look definido y elegante.', img: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=600&q=80', icon: '🎯' },
+        { id: 6, name: 'Mascarilla Facial', price: 30000, duration: '20 min', desc: 'Tratamiento hidratante facial con mascarilla carbón activo premium.', img: 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=600&q=80', icon: '💎' }
+      ];
+      let BARBERS = JSON.parse(localStorage.getItem('krom_barbers')) || [
+        { id: 1, name: 'Carlos Mendoza', specialty: 'Fades & Diseños', img: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=400&q=80', wa: '573146966976' },
+        { id: 2, name: 'Andrés López', specialty: 'Cortes Clásicos', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80', wa: '573146966976' },
+        { id: 3, name: 'Miguel Torres', specialty: 'Barba & Estilo', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80', wa: '573146966976' },
+        { id: 4, name: 'Juan Pérez', specialty: 'Diseños & Arte', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&q=80', wa: '573146966976' }
+      ];
+
+      function saveServices() { localStorage.setItem('krom_services', JSON.stringify(SERVICES)); }
+      function saveBarbers() { localStorage.setItem('krom_barbers', JSON.stringify(BARBERS)); }
+      const TESTIMONIALS = [
+        { name: 'Sebastián R.', date: 'Hace 2 días', stars: 5, text: 'El mejor corte que me han hecho en mi vida. Carlos es un artista, el fade quedó perfectísimo. 100% recomendado.', avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&q=80' },
+        { name: 'Daniel M.', date: 'Hace 1 semana', stars: 5, text: 'El ambiente es increíble, se siente de verdad premium. Andrés me hizo el corte exactamente como lo quería.', avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=100&q=80' },
+        { name: 'Felipe A.', date: 'Hace 10 días', stars: 5, text: 'Llevo 2 años yendo a KRÓM y nunca me han fallado. La mascarilla facial también quedé fascinado.', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80' },
+        { name: 'Camilo S.', date: 'Hace 2 semanas', stars: 5, text: 'Reservé por la página, súper fácil. Llegué y me atendieron puntual. El corte + barba vale cada peso.', avatar: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=100&q=80' },
+        { name: 'Alejandro V.', date: 'Hace 3 semanas', stars: 5, text: 'Excelente barbería. Los productos que usan son de primera calidad. Me dejaron la barba impecable.', avatar: 'https://images.unsplash.com/photo-1488161628813-04466f872be2?w=100&q=80' },
+        { name: 'Luis G.', date: 'Hace 1 mes', stars: 5, text: 'El diseño en mi corte fue exactamente lo que pedí. Miguel tiene una habilidad increíble con las navajas.', avatar: 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=100&q=80' }
+      ];
+
+      let bookings = JSON.parse(localStorage.getItem('krom_bookings') || '[]');
+      let sales = JSON.parse(localStorage.getItem('krom_sales') || '[]');
+      let currentStep = 1;
+      let booking = { service: null, barber: null, date: '', time: '', client: '', phone: '' };
+
+      // ============ RENDER ============
+      function fmt(n) { return n.toLocaleString('es-CO'); }
+
+      function renderServices() {
+        const g = document.getElementById('servicesGrid');
+        g.innerHTML = SERVICES.map((s, i) => `
+    <div class="service-card reveal">
+      <div class="service-img-wrap">
+        <img class="service-img" src="${s.img}" alt="${s.name}">
+        <div class="service-img-overlay"></div>
+      </div>
+      <div class="service-body">
+        <div class="service-number">0${i + 1}</div>
+        <div class="service-name">${s.name}</div>
+        <div class="service-desc">${s.desc}</div>
+        <div class="service-meta">
+          <span class="service-price">$${fmt(s.price)}</span>
+          <span class="service-duration"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>${s.duration}</span>
+        </div>
+      </div>
+    </div>`).join('');
+      }
+
+      function renderBarbers() {
+        const g = document.getElementById('barbersGrid');
+        g.innerHTML = BARBERS.map(b => `
+    <div class="barber-card reveal">
+      <div class="barber-img-wrap">
+        <img class="barber-img" src="${b.img}" alt="${b.name}">
+        <div class="barber-overlay"></div>
+        <div class="barber-info">
+          <div class="barber-name">${b.name}</div>
+          <div class="barber-specialty">${b.specialty}</div>
+        </div>
+      </div>
+    </div>`).join('');
+      }
+
+      function renderTestimonials() {
+        const all = [...TESTIMONIALS, ...TESTIMONIALS];
+        document.getElementById('testimonialsTrack').innerHTML = all.map(t => `
+    <div class="testimonial-card">
+      <div class="test-stars">${'★'.repeat(t.stars)}</div>
+      <p class="test-text">${t.text}</p>
+      <div class="test-author">
+        <img class="test-avatar" src="${t.avatar}" alt="${t.name}">
+        <div><div class="test-name">${t.name}</div><div class="test-date">${t.date}</div></div>
+      </div>
+    </div>`).join('');
+      }
+
+      // ============ MODAL ============
+      function openModal(serviceId = null, barberId = null) {
+        booking = { service: null, barber: null, date: '', time: '', client: '', phone: '' };
+        currentStep = 1;
+        document.getElementById('bookingModal').classList.add('open');
+        renderModalServices();
+        renderModalBarbers();
+        showStep(1);
+        const minDate = new Date();
+        document.getElementById('bookingDate').min = minDate.toISOString().split('T')[0];
+        if (serviceId) { selectService(serviceId); }
+        if (barberId) { selectBarber(barberId); }
+      }
+
+      function closeModal() {
+        document.getElementById('bookingModal').classList.remove('open');
+        if (currentStep === 5) location.reload();
+      }
+
+      function renderModalServices() {
+        document.getElementById('servicesSelectGrid').innerHTML = SERVICES.map(s => `
+    <div class="service-option" id="so${s.id}" onclick="selectService(${s.id})">
+      <div class="opt-name">${s.name}</div>
+      <div class="opt-price">$${fmt(s.price)}</div>
+      <div class="opt-duration">${s.duration}</div>
+    </div>`).join('');
+      }
+
+      function renderModalBarbers() {
+        document.getElementById('barbersSelectGrid').innerHTML = BARBERS.map(b => `
+    <div class="barber-option" id="bo${b.id}" onclick="selectBarber(${b.id})">
+      <img src="${b.img}" alt="${b.name}">
+      <div><div class="b-name">${b.name}</div><div class="b-spec">${b.specialty}</div></div>
+    </div>`).join('');
+      }
+
+      function selectService(id) {
+        booking.service = SERVICES.find(s => s.id === id);
+        document.querySelectorAll('.service-option').forEach(el => el.classList.remove('selected'));
+        document.getElementById('so' + id).classList.add('selected');
+      }
+
+      function selectBarber(id) {
+        booking.barber = BARBERS.find(b => b.id === id);
+        document.querySelectorAll('.barber-option').forEach(el => el.classList.remove('selected'));
+        document.getElementById('bo' + id).classList.add('selected');
+      }
+
+      function loadTimeSlots() {
+        booking.date = document.getElementById('bookingDate').value;
+        const slots = ['08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00'];
+        const taken = bookings.filter(b => b.date === booking.date && b.barber === booking.barber?.name).map(b => b.time);
+        document.getElementById('timesGrid').innerHTML = slots.map(t => `
+    <button class="time-slot${taken.includes(t) ? ' taken' : ''}" onclick="selectTime('${t}',this)" ${taken.includes(t) ? 'disabled' : ''}>${t}</button>`).join('');
+      }
+
+      function selectTime(t, el) {
+        if (el.classList.contains('taken')) return;
+        document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+        el.classList.add('selected');
+        booking.time = t;
+      }
+
+      function updateSummary() {
+        document.getElementById('bookingSummary').innerHTML = `
+    <div class="summary-row"><span class="summary-key">Servicio</span><span class="summary-val">${booking.service?.name || '-'}</span></div>
+    <div class="summary-row"><span class="summary-key">Barbero</span><span class="summary-val">${booking.barber?.name || '-'}</span></div>
+    <div class="summary-row"><span class="summary-key">Fecha</span><span class="summary-val">${booking.date || '-'}</span></div>
+    <div class="summary-row"><span class="summary-key">Hora</span><span class="summary-val">${booking.time || '-'}</span></div>
+    <div class="summary-row summary-total"><span class="summary-key">Total</span><span class="summary-val">$${fmt(booking.service?.price || 0)}</span></div>`;
+      }
+
+      function showStep(n) {
+        currentStep = n;
+        for (let i = 1; i <= 5; i++) {
+          document.getElementById('step' + i).classList.toggle('active', i === n);
+        }
+        const dots = document.querySelectorAll('.progress-dot');
+        dots.forEach((d, i) => d.classList.toggle('done', i < n));
+        document.getElementById('btnBack').style.display = n > 1 && n < 5 ? '' : 'none';
+        document.getElementById('modalFooter').style.display = n === 5 ? 'none' : 'flex';
+        if (n === 4) updateSummary();
+      }
+
+      function nextStep() {
+        if (currentStep === 1 && !booking.service) { showToast('Selecciona un servicio'); return; }
+        if (currentStep === 2 && !booking.barber) { showToast('Selecciona un barbero'); return; }
+        if (currentStep === 3) {
+          if (!booking.date) { showToast('Selecciona una fecha'); return; }
+          if (!booking.time) { showToast('Selecciona un horario'); return; }
+        }
+        if (currentStep === 4) {
+          const name = document.getElementById('clientName').value.trim();
+          const phone = document.getElementById('clientPhone').value.trim();
+          if (!name || !phone) { showToast('Completa tus datos'); return; }
+          booking.client = name; booking.phone = phone;
+          confirmBooking(); return;
+        }
+        showStep(currentStep + 1);
+      }
+
+      function prevStep() { showStep(currentStep - 1); }
+
+      function confirmBooking() {
+        const entry = {
+          id: Date.now(),
+          service: booking.service.name,
+          price: booking.service.price,
+          barber: booking.barber.name,
+          barberWa: booking.barber.wa,
+          date: booking.date,
+          time: booking.time,
+          client: booking.client,
+          phone: booking.phone,
+          status: 'confirmed',
+          createdAt: new Date().toISOString()
+        };
+        bookings.push(entry);
+        localStorage.setItem('krom_bookings', JSON.stringify(bookings));
+        const msg = `✅ *Nueva cita KRÓM*%0A%0A👤 *Cliente:* ${entry.client}%0A📱 *Tel:* ${entry.phone}%0A✂️ *Servicio:* ${entry.service}%0A📅 *Fecha:* ${entry.date}%0A🕐 *Hora:* ${entry.time}%0A💰 *Precio:* $${fmt(entry.price)} COP`;
+        window.open(`https://wa.me/${entry.barberWa}?text=${msg}`, '_blank');
+        showStep(5);
+      }
+
+      // ============ ADMIN ============
+      function openAdmin() {
+        document.getElementById('adminOverlay').classList.add('open');
+        document.getElementById('adminLogin').style.display = 'flex';
+        document.getElementById('adminDashboard').style.display = 'none';
+      }
+
+      function closeAdmin() { document.getElementById('adminOverlay').classList.remove('open'); }
+
+      function doLogin() {
+        const u = document.getElementById('adminUser').value;
+        const p = document.getElementById('adminPass').value;
+        if (u === 'admin' && p === 'krom2024') {
+          document.getElementById('adminLogin').style.display = 'none';
+          document.getElementById('adminDashboard').style.display = 'block';
+          loadAdminData();
+        } else { showToast('Credenciales incorrectas'); }
+      }
+
+      function showAdminTab(id, btn) {
+        document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-' + id).classList.add('active');
+        btn.classList.add('active');
+        if (id === 'ventas') loadVentas();
+        if (id === 'clientes') loadClientes();
+        if (id === 'servicios') loadServiciosAdmin();
+        if (id === 'barberos') loadBarberosAdmin();
+      }
+
+      function loadAdminData() {
+        // Metrics
+        const today = new Date().toISOString().split('T')[0];
+        const todayBookings = bookings.filter(b => b.date === today);
+        const todaySales = sales.filter(s => s.date === today);
+        const totalToday = todaySales.reduce((a, s) => a + s.amount, 0);
+        document.getElementById('adminMetrics').innerHTML = `
+    <div class="metric-card"><span class="metric-val">${todayBookings.length}</span><div class="metric-label">Citas Hoy</div></div>
+    <div class="metric-card"><span class="metric-val">${bookings.length}</span><div class="metric-label">Total Reservas</div></div>
+    <div class="metric-card"><span class="metric-val">$${fmt(totalToday)}</span><div class="metric-label">Ingresos Hoy</div></div>
+    <div class="metric-card"><span class="metric-val">${sales.length}</span><div class="metric-label">Cortes Registrados</div></div>`;
+        document.getElementById('regService').innerHTML = SERVICES.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+        document.getElementById('regBarber').innerHTML = BARBERS.map(b => `<option value="${b.name}">${b.name}</option>`).join('');
+        // Table
+        const tbody = document.getElementById('reservasTbody');
+        if (bookings.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--gray);padding:2rem">No hay reservas aún</td></tr>'; return; }
+        tbody.innerHTML = [...bookings].reverse().map((b, i) => `
+    <tr>
+      <td style="color:var(--gold)">#${bookings.length - i}</td>
+      <td>${b.client}<br><small style="color:var(--gray)">${b.phone}</small></td>
+      <td>${b.service}</td>
+      <td>${b.barber}</td>
+      <td>${b.date}</td>
+      <td>${b.time}</td>
+      <td><span class="badge badge-confirmed">Confirmada</span></td>
+    </tr>`).join('');
+      }
+
+      function registrarCorte() {
+        const s = document.getElementById('regService').value;
+        const barber = document.getElementById('regBarber').value;
+        const amount = parseInt(document.getElementById('regAmount').value) || 0;
+        const pago = document.getElementById('regPago').value;
+        if (!amount) { showToast('Ingresa el monto'); return; }
+        const entry = { date: new Date().toISOString().split('T')[0], service: s, barber, amount, pago, createdAt: new Date().toISOString() };
+        sales.push(entry);
+        localStorage.setItem('krom_sales', JSON.stringify(sales));
+        document.getElementById('regAmount').value = '';
+        showToast('✅ Corte registrado correctamente');
+        loadAdminData();
+      }
+
+      function loadVentas() {
+        const today = new Date().toISOString().split('T')[0];
+        const todaySales = sales.filter(s => s.date === today);
+        const totalHoy = todaySales.reduce((a, s) => a + s.amount, 0);
+        const totalSem = sales.reduce((a, s) => a + s.amount, 0);
+        document.getElementById('ventasMetrics').innerHTML = `
+    <div class="metric-card"><span class="metric-val">$${fmt(totalHoy)}</span><div class="metric-label">Ingresos Hoy</div></div>
+    <div class="metric-card"><span class="metric-val">$${fmt(totalSem)}</span><div class="metric-label">Ingresos Totales</div></div>
+    <div class="metric-card"><span class="metric-val">${todaySales.length}</span><div class="metric-label">Cortes Hoy</div></div>
+    <div class="metric-card"><span class="metric-val">${sales.length}</span><div class="metric-label">Total Cortes</div></div>`;
+        const tbody = document.getElementById('ventasTbody');
+        if (sales.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray);padding:2rem">Sin ingresos registrados</td></tr>'; return; }
+        tbody.innerHTML = [...sales].reverse().map(s => `
+    <tr><td>${s.date}</td><td>${s.service}</td><td>${s.barber}</td><td style="color:var(--gold);font-family:Cinzel,serif">$${fmt(s.amount)}</td><td>${s.pago}</td></tr>`).join('');
+      }
+
+      function loadClientes() {
+        const map = {};
+        bookings.forEach(b => {
+          if (!map[b.client]) map[b.client] = { name: b.client, phone: b.phone, visits: 0, lastService: '', favBarber: b.barber };
+          map[b.client].visits++;
+          map[b.client].lastService = b.service;
+        });
+        const clients = Object.values(map);
+        const tbody = document.getElementById('clientesTbody');
+        if (clients.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray);padding:2rem">Sin clientes registrados</td></tr>'; return; }
+        tbody.innerHTML = clients.map(c => `
+    <tr><td>${c.name}</td><td>${c.phone}</td><td style="color:var(--gold)">${c.visits}</td><td>${c.lastService}</td><td>${c.favBarber}</td></tr>`).join('');
+      }
+
+      function loadServiciosAdmin() {
+        let html = SERVICES.map((s, index) => `
+    <div style="display:grid;grid-template-columns:auto 1fr 1fr 1fr auto;gap:1rem;align-items:center;padding:1rem 0;border-bottom:1px solid rgba(255,255,255,0.06)">
+      <input class="form-input" style="padding:0.5rem;width:50px;text-align:center" id="editSrvIcon${index}" value="${s.icon}">
+      <input class="form-input" style="padding:0.5rem" id="editSrvName${index}" value="${s.name}">
+      <input class="form-input" type="number" style="padding:0.5rem" id="editSrvPrice${index}" value="${s.price}">
+      <input class="form-input" style="padding:0.5rem" id="editSrvDur${index}" value="${s.duration}">
+      <div style="display:flex;gap:0.5rem">
+        <button class="btn-reserve" style="width:auto;padding:0.5rem 1rem" onclick="updateService(${index})">Guardar</button>
+        <button class="btn-reserve" style="width:auto;padding:0.5rem 1rem;color:#ef4444;border-color:#ef4444" onclick="deleteService(${index})">✕</button>
+      </div>
+    </div>`).join('');
+
+        html += `
+    <div style="display:grid;grid-template-columns:auto 1fr 1fr 1fr auto;gap:1rem;align-items:center;padding:1rem 0;margin-top:1rem;background:rgba(212,175,55,0.05);border:1px dashed var(--gold);">
+      <input class="form-input" style="padding:0.5rem;width:50px;text-align:center" id="newSrvIcon" placeholder="✂️">
+      <input class="form-input" style="padding:0.5rem" id="newSrvName" placeholder="Nuevo Servicio">
+      <input class="form-input" type="number" style="padding:0.5rem" id="newSrvPrice" placeholder="Precio">
+      <input class="form-input" style="padding:0.5rem" id="newSrvDur" placeholder="Duración">
+      <button class="btn-reserve" style="width:auto;padding:0.5rem 1rem;background:var(--gold);color:var(--black)" onclick="addService()">+ Añadir</button>
+    </div>`;
+
+        document.getElementById('serviciosAdmin').innerHTML = html;
+      }
+
+      function updateService(i) {
+        SERVICES[i].icon = document.getElementById('editSrvIcon' + i).value;
+        SERVICES[i].name = document.getElementById('editSrvName' + i).value;
+        SERVICES[i].price = parseInt(document.getElementById('editSrvPrice' + i).value) || 0;
+        SERVICES[i].duration = document.getElementById('editSrvDur' + i).value;
+        saveServices();
+        renderServices();
+        showToast('Servicio actualizado');
+      }
+
+      function deleteService(i) {
+        if (confirm('¿Seguro que deseas eliminar este servicio?')) {
+          SERVICES.splice(i, 1);
+          saveServices();
+          renderServices();
+          loadServiciosAdmin();
+          showToast('Servicio eliminado');
+        }
+      }
+
+      function addService() {
+        const icon = document.getElementById('newSrvIcon').value || '✨';
+        const name = document.getElementById('newSrvName').value;
+        const price = parseInt(document.getElementById('newSrvPrice').value) || 0;
+        const duration = document.getElementById('newSrvDur').value || '30 min';
+        if (!name) { showToast('Ingresa un nombre'); return; }
+        SERVICES.push({ id: Date.now(), name, price, duration, desc: 'Servicio personalizado.', img: 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=600&q=80', icon });
+        saveServices();
+        renderServices();
+        loadServiciosAdmin();
+        showToast('Servicio añadido');
+      }
+
+      function loadBarberosAdmin() {
+        let html = BARBERS.map((b, index) => `
+    <div style="display:flex;align-items:center;gap:1.5rem;padding:1rem 0;border-bottom:1px solid rgba(255,255,255,0.06)">
+      <img src="${b.img}" id="editBarbImgPreview${index}" style="width:52px;height:52px;border-radius:50%;object-fit:cover;filter:grayscale(20%)">
+      <div style="flex:1;display:flex;flex-direction:column;gap:0.5rem">
+        <input class="form-input" style="padding:0.5rem" id="editBarbName${index}" value="${b.name}">
+        <input class="form-input" style="padding:0.5rem" id="editBarbSpec${index}" value="${b.specialty}">
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:0.5rem">
+        <input class="form-input" style="padding:0.5rem" id="editBarbWa${index}" value="${b.wa}">
+        <label for="editBarbImgFile${index}" class="btn-file" style="margin-top:auto">📷 Modificar Foto</label>
+        <input type="file" id="editBarbImgFile${index}" accept="image/*" style="display:none;" onchange="previewBarberImg(event, 'editBarbImgPreview${index}')">
+      </div>
+      <div style="display:flex;gap:0.5rem;flex-direction:column">
+        <button class="btn-reserve" style="width:100%;padding:0.5rem 1rem" onclick="updateBarber(${index})">Guardar</button>
+        <button class="btn-reserve" style="width:100%;padding:0.5rem 1rem;color:#ef4444;border-color:#ef4444" onclick="deleteBarber(${index})">Eliminar</button>
+      </div>
+    </div>`).join('');
+
+        html += `
+    <div style="display:flex;align-items:center;gap:1.5rem;padding:1rem;margin-top:1rem;background:rgba(212,175,55,0.05);border:1px dashed var(--gold);">
+      <img id="newBarbImgPreview" src="" style="display:none;width:52px;height:52px;border-radius:50%;object-fit:cover;filter:grayscale(20%)">
+      <div id="newBarbImgPlaceholder" style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:1.5rem">👤</div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:0.5rem">
+        <input class="form-input" style="padding:0.5rem" id="newBarbName" placeholder="Nombre Barbero">
+        <input class="form-input" style="padding:0.5rem" id="newBarbSpec" placeholder="Especialidad">
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:0.5rem">
+        <input class="form-input" style="padding:0.5rem" id="newBarbWa" placeholder="WhatsApp (Ej: 57300...)">
+        <label for="newBarbImgFile" class="btn-file" style="margin-top:auto">📷 Subir Foto</label>
+        <input type="file" id="newBarbImgFile" accept="image/*" style="display:none;" onchange="previewBarberImg(event, 'newBarbImgPreview')">
+      </div>
+      <button class="btn-reserve" style="width:auto;padding:0.5rem 1rem;background:var(--gold);color:var(--black)" onclick="addBarber()">+ Añadir</button>
+    </div>`;
+
+        document.getElementById('barberosAdmin').innerHTML = html;
+      }
+
+      function previewBarberImg(event, imgId) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            document.getElementById(imgId).src = e.target.result;
+            if (imgId === 'newBarbImgPreview') {
+              document.getElementById('newBarbImgPreview').style.display = 'block';
+              document.getElementById('newBarbImgPlaceholder').style.display = 'none';
+            }
+          }
+          reader.readAsDataURL(file);
+        }
+      }
+
+      function updateBarber(i) {
+        BARBERS[i].name = document.getElementById('editBarbName' + i).value;
+        BARBERS[i].specialty = document.getElementById('editBarbSpec' + i).value;
+        BARBERS[i].wa = document.getElementById('editBarbWa' + i).value;
+        BARBERS[i].img = document.getElementById('editBarbImgPreview' + i).src;
+        saveBarbers();
+        renderBarbers();
+        loadBarberosAdmin();
+        showToast('Barbero actualizado');
+      }
+
+      function deleteBarber(i) {
+        if (confirm('¿Seguro que deseas eliminar este barbero?')) {
+          BARBERS.splice(i, 1);
+          saveBarbers();
+          renderBarbers();
+          loadBarberosAdmin();
+          showToast('Barbero eliminado');
+        }
+      }
+
+      function addBarber() {
+        const name = document.getElementById('newBarbName').value;
+        const specialty = document.getElementById('newBarbSpec').value || 'Barbero';
+        const wa = document.getElementById('newBarbWa').value || '573000000000';
+        let img = document.getElementById('newBarbImgPreview').src;
+        if (!img.startsWith('data:image') && !img.startsWith('http')) {
+          img = 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&q=80';
+        }
+        if (!name) { showToast('Ingresa un nombre'); return; }
+        BARBERS.push({ id: Date.now(), name, specialty, wa, img });
+        saveBarbers();
+        renderBarbers();
+        loadBarberosAdmin();
+        showToast('Barbero añadido');
+      }
+
+      // ============ UTILS ============
+      function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 3000);
+      }
+
+      // ============ CURSOR ============
+      const cursor = document.getElementById('cursor');
+      const ring = document.getElementById('cursorRing');
+      let mx = 0, my = 0, rx = 0, ry = 0;
+      document.addEventListener('mousemove', e => {
+        mx = e.clientX; my = e.clientY;
+        cursor.style.left = (mx - 4) + 'px'; cursor.style.top = (my - 4) + 'px';
+      });
+      (function animRing() {
+        rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+        ring.style.left = (rx - 18) + 'px'; ring.style.top = (ry - 18) + 'px';
+        requestAnimationFrame(animRing);
+      })();
+      document.querySelectorAll('a,button,.service-card,.barber-card,.gallery-item,.time-slot,.service-option,.barber-option').forEach(el => {
+        el.addEventListener('mouseenter', () => { ring.classList.add('hovered'); cursor.classList.add('hovered'); });
+        el.addEventListener('mouseleave', () => { ring.classList.remove('hovered'); cursor.classList.remove('hovered'); });
+      });
+
+      // ============ NAVBAR ============
+      window.addEventListener('scroll', () => {
+        document.getElementById('navbar').classList.toggle('scrolled', scrollY > 80);
+      });
+
+      // ============ HERO SLIDER ============
+      const slides = document.querySelectorAll('.hero-slide');
+      let currentSlide = 0;
+      setInterval(() => {
+        slides[currentSlide].classList.remove('active');
+        currentSlide = (currentSlide + 1) % slides.length;
+        slides[currentSlide].classList.add('active');
+      }, 5000);
+
+      // ============ REVEAL ============
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+      }, { threshold: 0.1 });
+      function observeReveal() { document.querySelectorAll('.reveal').forEach(el => observer.observe(el)); }
+
+      // ============ INIT ============
+      renderServices();
+      renderBarbers();
+      renderTestimonials();
+      observeReveal();
+      setTimeout(observeReveal, 100);
+    </script>
+</body>
+
+</html>
