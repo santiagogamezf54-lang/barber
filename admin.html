@@ -504,22 +504,82 @@
   function renderServicios() {
     return `
     <div>
-      <h2 class="section-title">Editar Servicios y Precios</h2>
+      <h2 class="section-title">Editar Servicios y Fotos</h2>
       <div class="servicios-list">
-        ${state.servicios.map(s => `
-          <div class="servicio-row" data-id="${s.id}">
-            <input class="inp inp-sm serv-nombre" type="text" value="${s.nombre}" />
-            <input class="inp inp-sm serv-precio" type="number" value="${s.precio}" />
-            <input class="inp inp-sm serv-duracion" type="text" value="${s.duracion} min" />
-            <button class="btn-gold-sm" data-action="save-servicio" data-id="${s.id}">GUARDAR</button>
-            <button class="btn-red-sm" data-action="del-servicio" data-id="${s.id}">✕</button>
+        ${state.servicios.map(s => {
+          const srvData = servicesData.find(item => String(item.id) === String(s.id)) || {};
+          return `
+          <div class="servicio-row-card" data-id="${s.id}">
+            <div class="serv-preview">
+              ${srvData.img ? `<img src="${srvData.img}" alt="${s.nombre}">` : `<span class="serv-preview-empty">📷</span>`}
+            </div>
+            <div class="serv-fields">
+              <div class="form-group">
+                <label>NOMBRE</label>
+                <input class="inp serv-nombre" type="text" value="${s.nombre}" />
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 9px;">
+                <div class="form-group">
+                  <label>PRECIO</label>
+                  <input class="inp serv-precio" type="number" value="${s.precio}" />
+                </div>
+                <div class="form-group">
+                  <label>DURACIÓN</label>
+                  <input class="inp serv-duracion" type="text" value="${s.duracion} min" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label>CAMBIAR FOTO</label>
+                <div class="file-input-wrapper">
+                  <input class="serv-foto" type="file" accept="image/*" />
+                  <label class="file-input-label">
+                    <span class="file-btn">📤 ELEGIR FOTO</span>
+                    <span class="file-input-text">Elige una imagen...</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="serv-actions">
+              <button class="btn-gold-sm" data-action="save-servicio" data-id="${s.id}">GUARDAR</button>
+              <button class="btn-red-sm" data-action="del-servicio" data-id="${s.id}">ELIMINAR</button>
+            </div>
           </div>
-        `).join('')}
-        <div class="servicio-row nuevo-row">
-          <input id="new-serv-nombre" class="inp inp-sm" type="text" placeholder="Nuevo Servicio" />
-          <input id="new-serv-precio" class="inp inp-sm" type="number" placeholder="Precio" />
-          <input id="new-serv-duracion" class="inp inp-sm" type="text" placeholder="Duración (min)" />
-          <button class="btn-primary-sm" data-action="add-servicio">+ AGREGAR</button>
+        `;
+        }).join('')}
+        
+        <div class="servicio-row-card nuevo-servicio-row">
+          <div class="serv-preview serv-preview-nuevo">
+            <span>+</span>
+          </div>
+          <div class="serv-fields">
+            <div class="form-group">
+              <label>NOMBRE</label>
+              <input id="new-serv-nombre" class="inp" type="text" placeholder="Nuevo Servicio" />
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 9px;">
+              <div class="form-group">
+                <label>PRECIO</label>
+                <input id="new-serv-precio" class="inp" type="number" placeholder="Precio" />
+              </div>
+              <div class="form-group">
+                <label>DURACIÓN</label>
+                <input id="new-serv-duracion" class="inp" type="text" placeholder="30 min" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>FOTO (opcional)</label>
+              <div class="file-input-wrapper">
+                <input id="new-serv-foto" type="file" accept="image/*" />
+                <label class="file-input-label">
+                  <span class="file-btn">📤 ELEGIR FOTO</span>
+                  <span class="file-input-text">Elige una imagen...</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="serv-actions">
+            <button class="btn-primary-sm" data-action="add-servicio">+ AGREGAR</button>
+          </div>
         </div>
       </div>
     </div>
@@ -539,7 +599,13 @@
               <input class="inp barb-nombre" type="text" value="${b.nombre}" />
               <input class="inp barb-esp" type="text" value="${b.especialidad}" />
               <input class="inp barb-tel" type="text" value="${b.tel}" placeholder="WhatsApp" />
-              <input class="inp barb-foto" type="file" accept="image/*" />
+              <div class="file-input-wrapper">
+                <input class="barb-foto" type="file" accept="image/*" />
+                <label class="file-input-label">
+                  <span class="file-btn">📤 FOTO</span>
+                  <span class="file-input-text">Elige una imagen...</span>
+                </label>
+              </div>
             </div>
             <div class="barb-actions">
               <button class="btn-gold-sm" data-action="save-barbero" data-id="${b.id}">GUARDAR</button>
@@ -553,7 +619,13 @@
             <input id="new-barb-nombre" class="inp" type="text" placeholder="Nombre Barbero" />
             <input id="new-barb-esp" class="inp" type="text" placeholder="Especialidad" />
             <input id="new-barb-tel" class="inp" type="text" placeholder="WhatsApp (ej: 3001234567)" />
-            <input id="new-barb-foto" class="inp" type="file" accept="image/*" />
+            <div class="file-input-wrapper">
+              <input id="new-barb-foto" type="file" accept="image/*" />
+              <label class="file-input-label">
+                <span class="file-btn">📤 FOTO</span>
+                <span class="file-input-text">Elige una imagen...</span>
+              </label>
+            </div>
           </div>
           <div class="barb-actions">
             <button class="btn-primary-sm" data-action="add-barbero">+ AGREGAR</button>
@@ -567,13 +639,19 @@
   function renderGaleria() {
     return `
     <div>
-      <h2 class="section-title">Editar GalerÃ­a</h2>
+      <h2 class="section-title">Editar Galería</h2>
       <div class="gallery-admin-grid">
         ${galleryData.map((src, index) => `
           <div class="gallery-admin-item" data-index="${index}">
-            <div class="gallery-admin-preview">${hasImage(src) ? `<img src="${src}" alt="GalerÃ­a ${index + 1}">` : `<span>${index + 1}</span>`}</div>
+            <div class="gallery-admin-preview">${hasImage(src) ? `<img src="${src}" alt="Galería ${index + 1}">` : `<span>${index + 1}</span>`}</div>
             <input class="inp gallery-url" type="text" value="${src}" placeholder="URL de imagen" />
-            <input class="inp gallery-file" type="file" accept="image/*" />
+            <div class="file-input-wrapper">
+              <input class="gallery-file" type="file" accept="image/*" />
+              <label class="file-input-label">
+                <span class="file-btn">📤 IMAGEN</span>
+                <span class="file-input-text">Elige una imagen...</span>
+              </label>
+            </div>
             <div class="gallery-actions">
               <button class="btn-gold-sm" data-action="save-gallery" data-id="${index}">GUARDAR</button>
               <button class="btn-red-sm" data-action="clear-gallery" data-id="${index}">QUITAR</button>
@@ -590,31 +668,63 @@
     document.querySelectorAll('[data-action]').forEach(el => {
       el.addEventListener('click', handleAction);
     });
-    document.querySelectorAll('.barb-foto').forEach(input => {
-      input.addEventListener('change', (event) => {
-        const row = event.currentTarget.closest('.barbero-row');
-        const b = state.barberos.find(x => x.id === row?.dataset.id);
-        const file = event.currentTarget.files?.[0];
-        if(!b || !file) return;
-        readImageFile(file, (src) => {
-          b.foto = src;
-          persistBarbers();
-          renderContent();
-          showToast('Foto de barbero guardada');
+    
+    // Manejo de cambio de archivo para TODOS los inputs file
+    document.querySelectorAll('input[type="file"]').forEach(input => {
+      const wrapper = input.closest('.file-input-wrapper');
+      const label = wrapper?.querySelector('.file-input-label');
+      
+      if(label) {
+        label.addEventListener('click', (e) => {
+          e.preventDefault();
+          input.click();
         });
-      });
-    });
-    document.querySelectorAll('.gallery-file').forEach(input => {
+      }
+      
       input.addEventListener('change', (event) => {
-        const row = event.currentTarget.closest('.gallery-admin-item');
-        const file = event.currentTarget.files?.[0];
-        if(!row || !file) return;
-        readImageFile(file, (src) => {
-          galleryData[Number(row.dataset.index)] = src;
-          persistGallery();
-          renderContent();
-          showToast('Imagen de galeria guardada');
-        });
+        if(event.currentTarget.files?.[0]) {
+          const textSpan = label?.querySelector('.file-input-text');
+          if(textSpan) textSpan.textContent = event.currentTarget.files[0].name;
+        }
+        
+        // Procesar según el tipo de input
+        if(input.classList.contains('serv-foto')) {
+          const row = event.currentTarget.closest('.servicio-row-card');
+          const file = event.currentTarget.files?.[0];
+          if(!row || !file) return;
+          const srvId = row.dataset.id;
+          const srvData = servicesData.find(item => String(item.id) === String(srvId));
+          if(!srvData) return;
+          readImageFile(file, (src) => {
+            srvData.img = src;
+            persistServices();
+            renderContent();
+            showToast('Foto del servicio guardada');
+          });
+        }
+        else if(input.classList.contains('barb-foto')) {
+          const row = event.currentTarget.closest('.barbero-row');
+          const b = state.barberos.find(x => x.id === row?.dataset.id);
+          const file = event.currentTarget.files?.[0];
+          if(!b || !file) return;
+          readImageFile(file, (src) => {
+            b.foto = src;
+            persistBarbers();
+            renderContent();
+            showToast('Foto de barbero guardada');
+          });
+        }
+        else if(input.classList.contains('gallery-file')) {
+          const row = event.currentTarget.closest('.gallery-admin-item');
+          const file = event.currentTarget.files?.[0];
+          if(!row || !file) return;
+          readImageFile(file, (src) => {
+            galleryData[Number(row.dataset.index)] = src;
+            persistGallery();
+            renderContent();
+            showToast('Imagen de galeria guardada');
+          });
+        }
       });
     });
   }
@@ -663,11 +773,39 @@
       const nombre = document.getElementById('new-serv-nombre').value.trim();
       const precio = Number(document.getElementById('new-serv-precio').value);
       const duracion = parseInt(document.getElementById('new-serv-duracion').value) || 30;
+      const fotoInput = document.getElementById('new-serv-foto');
+      
       if(nombre && precio) {
-        state.servicios.push({ id: String(Date.now()), nombre, precio, duracion });
-        persistServices();
-        renderContent();
-        showToast('Servicio agregado ✓');
+        const newId = String(Date.now());
+        // Agregar el nuevo servicio a state
+        state.servicios.push({ id: newId, nombre, precio, duracion });
+        // Crear el objeto en servicesData
+        servicesData.push({ id: Number(newId), name: nombre, price: precio, duration: `${duracion} min`, img: '', icon: '' });
+        
+        // Si hay foto, guardarla
+        if(fotoInput?.files?.[0]) {
+          readImageFile(fotoInput.files[0], (src) => {
+            const srvData = servicesData.find(item => String(item.id) === String(newId));
+            if(srvData) srvData.img = src;
+            persistServices();
+            // Limpiar campos
+            document.getElementById('new-serv-nombre').value = '';
+            document.getElementById('new-serv-precio').value = '';
+            document.getElementById('new-serv-duracion').value = '';
+            document.getElementById('new-serv-foto').value = '';
+            renderContent();
+            showToast('Servicio agregado con foto ✓');
+          });
+        } else {
+          persistServices();
+          // Limpiar campos
+          document.getElementById('new-serv-nombre').value = '';
+          document.getElementById('new-serv-precio').value = '';
+          document.getElementById('new-serv-duracion').value = '';
+          document.getElementById('new-serv-foto').value = '';
+          renderContent();
+          showToast('Servicio agregado ✓');
+        }
       }
     }
     else if(action === 'save-barbero') {
@@ -772,7 +910,7 @@
       renderAll();
       return;
     }
-    document.getElementById('login-error').textContent = 'Usuario o contraseÃ±a incorrectos.';
+    document.getElementById('login-error').textContent = 'Usuario o contraseña incorrectos.';
   }
 
   // ==================== INIT ====================
@@ -1043,6 +1181,72 @@
   .inp::placeholder { color: oklch(55% 0.025 83); }
   .inp-sm { padding: 9px 11px; font-size: 13px; }
   select.inp { cursor: pointer; }
+  
+  /* MEJORA INPUT FILE */
+  .file-input-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+  }
+  
+  input[type="file"] {
+    position: absolute !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    cursor: pointer !important;
+    display: none !important;
+  }
+  
+  .file-input-label {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: oklch(12% 0.014 83);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 11px 13px;
+    cursor: pointer;
+    transition: border-color 180ms ease, background 180ms ease;
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+  
+  .file-input-label:hover {
+    border-color: oklch(74% 0.105 84 / 0.30);
+  }
+  
+  .file-input-label .file-btn {
+    background: linear-gradient(180deg, var(--gold-light), var(--gold));
+    color: var(--bg);
+    border: 1px solid var(--gold);
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 10px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-right: 10px;
+    transition: filter 140ms ease;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  
+  .file-input-label .file-btn:hover {
+    filter: brightness(1.08);
+  }
+  
+  .file-input-text {
+    color: var(--text-dim);
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+  }
 
   .service-pills { display: grid; grid-template-columns: repeat(auto-fit, minmax(126px, 1fr)); gap: 9px; }
   .service-pill {
@@ -1207,7 +1411,7 @@
   .pago-method { font-size: 9px; letter-spacing: 1.8px; color: var(--text-dim); text-transform: uppercase; font-weight: 800; }
   .pago-total { font-family: 'Cormorant Garamond', serif; font-size: 24px; color: var(--gold); line-height: 1; font-variant-numeric: tabular-nums; }
 
-  .servicios-list { display: flex; flex-direction: column; gap: 9px; }
+  .servicios-list { display: flex; flex-direction: column; gap: 12px; }
   .servicio-row {
     display: grid; grid-template-columns: minmax(180px, 1fr) 120px 120px 100px 40px;
     gap: 9px; align-items: center;
@@ -1216,6 +1420,42 @@
     border-radius: var(--radius); padding: 12px 16px;
   }
   .nuevo-row { border-style: dashed; background: oklch(20% 0.018 83 / 0.68); }
+
+  /* NUEVO ESTILO SERVICIOS CON FOTOS */
+  .servicio-row-card {
+    display: flex; align-items: center; gap: 16px;
+    background: linear-gradient(180deg, var(--bg3), oklch(18% 0.018 83));
+    border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 20px;
+  }
+  .nuevo-servicio-row { border-style: dashed; background: oklch(20% 0.018 83 / 0.68); }
+  .serv-preview {
+    width: 80px; height: 80px; flex-shrink: 0;
+    background: var(--bg4); border: 1px solid var(--border);
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    overflow: hidden; color: var(--gold);
+  }
+  .serv-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .serv-preview-empty { font-size: 32px; opacity: 0.6; }
+  .serv-preview-nuevo { 
+    font-size: 36px; 
+    color: var(--text-dim);
+  }
+  .serv-fields { flex: 1; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 9px; min-width: 0; }
+  .serv-fields .form-group { margin-bottom: 0; }
+  .serv-actions { display: flex; gap: 8px; flex-direction: column; }
+
+  .servicio-row {
+    display: grid; grid-template-columns: minmax(180px, 1fr) 120px 120px 100px 40px;
+    gap: 9px; align-items: center;
+    background: linear-gradient(180deg, var(--bg3), oklch(18% 0.018 83));
+    border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 12px 16px;
+  }
 
   .barberos-list { display: flex; flex-direction: column; gap: 12px; }
   .barbero-row {
@@ -1332,11 +1572,11 @@
     .stat-card { padding: 16px 12px; }
     .stat-num { font-size: 28px; }
     .section-title { font-size: 23px; }
-    .form-row, .barb-fields, .servicio-row { grid-template-columns: 1fr; }
+    .form-row, .barb-fields, .servicio-row, .serv-fields { grid-template-columns: 1fr; }
     .service-pills { grid-template-columns: 1fr; }
-    .barbero-row { align-items: flex-start; flex-direction: column; }
-    .barb-actions { width: 100%; flex-direction: row; }
-    .barb-actions button { flex: 1; }
+    .barbero-row, .servicio-row-card { align-items: flex-start; flex-direction: column; }
+    .barb-actions, .serv-actions { width: 100%; flex-direction: row; }
+    .barb-actions button, .serv-actions button { flex: 1; }
     .toast { left: 18px; right: 18px; bottom: 18px; }
   }
 </style>
@@ -1351,8 +1591,8 @@
       <input id="login-user" class="inp" type="text" autocomplete="username" placeholder="admin">
     </div>
     <div class="form-group">
-      <label>CONTRASEÃ‘A</label>
-      <input id="login-pass" class="inp" type="password" autocomplete="current-password" placeholder="ContraseÃ±a">
+      <label>CONTRASEÑA</label>
+      <input id="login-pass" class="inp" type="password" autocomplete="current-password" placeholder="Contraseña">
     </div>
     <button class="btn-primary btn-full" type="button" onclick="doAdminLogin()">ENTRAR</button>
     <p class="login-error" id="login-error"></p>
@@ -1368,7 +1608,7 @@
     <button class="nav-link" data-id="clientes">Clientes</button>
     <button class="nav-link" data-id="servicios">Servicios</button>
     <button class="nav-link" data-id="barberos">Barberos</button>
-    <button class="nav-link" data-id="galeria">GalerÃ­a</button>
+    <button class="nav-link" data-id="galeria">Galeri­a</button>
   </div>
   <a class="nav-back" href="barberia (3).html">Ver sitio</a>
 </nav>
