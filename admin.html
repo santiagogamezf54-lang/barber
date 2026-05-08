@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KRÓM · Admin POS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<script>
+
+  // ======================================================
+  // 🔧 CONFIGURACIÓN FIREBASE — reemplaza con tus datos
+  // ======================================================
+  const firebaseConfig = {
+    apiKey: "TU_API_KEY",
+    authDomain: "TU_PROJECT.firebaseapp.com",
+    projectId: "TU_PROJECT_ID",
+    storageBucket: "TU_PROJECT.appspot.com",
+    messagingSenderId: "TU_SENDER_ID",
+    appId: "TU_APP_ID"
+  };
+
+  let db;
+  let useFirebase = false;
+
+  try {
+    const app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    useFirebase = true;
+    console.log('✅ Firebase conectado');
+  } catch(e) {
+    console.warn('⚠️ Firebase no configurado — modo local activo');
+  }
+
+  // Estado local compartido con la pagina publica.
+  let state = {
+    barberos: [
+      { id: 'b1', nombre: 'Carlos Mendoza', especialidad: 'Fades & Diseños', tel: '3001234567', foto: null, activo: true },
+      { id: 'b2', nombre: 'Andrés López', especialidad: 'Cortes Clásicos', tel: '3007654321', foto: null, activo: true },
+      { id: 'b3', nombre: 'Miguel Torres', especialidad: 'Barba & Estilo', tel: '3009876543', foto: null, activo: true },
+    ],
+    servicios: [
+      { id: 's1', nombre: 'Corte Clásico', precio: 25000, duracion: 30 },
+      { id: 's2', nombre: 'Fade + Diseño', precio: 35000, duracion: 45 },
+      { id: 's3', nombre: 'Barba Completa', precio: 20000, duracion: 25 },
+      { id: 's4', nombre: 'Corte + Barba', precio: 45000, duracion: 60 },
+      { id: 's5', nombre: 'Cejas', precio: 10000, duracion: 15 },
+      { id: 's6', nombre: 'Mascarilla Facial', precio: 30000, duracion: 20 },
+    ],
+    cortes: [],
+    reservas: [],
+    clientes: [],
+    activeTab: 'pos',
+    barberoActivo: null, // barbero seleccionado en modo POS rápido
+  };
+
+  const defaultServicesData = [
+    { id: 1, name: 'Corte Clasico', price: 25000, duration: '30 min', desc: 'Corte tradicional con acabado perfecto.', img: 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=600&q=80', icon: '01' },
+    { id: 2, name: 'Fade + Diseno', price: 35000, duration: '45 min', desc: 'Degradado moderno con disenos personalizados.', img: 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=600&q=80', icon: '02' },
+    { id: 3, name: 'Barba Completa', price: 20000, duration: '25 min', desc: 'Perfilado y arreglo de barba.', img: 'https://images.unsplash.com/photo-1595152452543-e5fc28ebc2b8?w=600&q=80', icon: '03' },
+    { id: 4, name: 'Corte + Barba', price: 45000, duration: '60 min', desc: 'Combo completo de corte y barba.', img: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=600&q=80', icon: '04' },
+    { id: 5, name: 'Cejas', price: 10000, duration: '15 min', desc: 'Diseno y depilacion de cejas.', img: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=600&q=80', icon: '05' },
+    { id: 6, name: 'Mascarilla Facial', price: 30000, duration: '20 min', desc: 'Tratamiento facial premium.', img: 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=600&q=80', icon: '06' }
+  ];
+
+  const defaultBarbersData = [
+    { id: 1, name: 'Carlos Mendoza', specialty: 'Fades & Disenos', img: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=400&q=80', wa: '573146966976' },
+    { id: 2, name: 'Andres Lopez', specialty: 'Cortes Clasicos', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80', wa: '573146966976' },
+    { id: 3, name: 'Miguel Torres', specialty: 'Barba & Estilo', img: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80', wa: '573146966976' },
+    { id: 4, name: 'Juan Perez', specialty: 'Disenos & Arte', img: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&q=80', wa: '573146966976' }
+  ];
+
+  let servicesData = [];
+  let barbersData = [];
+  let bookingsData = [];
+  let salesData = [];
+
+  function readStore(key, fallback) {
+    try {
+      const value = JSON.parse(localStorage.getItem(key) || 'null');
+      return value ?? structuredClone(fallback);
+    } catch(e) {
+      return structuredClone(fallback);
+    }
+  }
+
+  function minutesFromDuration(duration) {
+    return parseInt(String(duration || '').match(/\d+/)?.[0], 10) || 30;
+  }
+
+  function normalizeDateTime(item) {
+    if(item.createdAt) return item.createdAt;
+    if(item.ts) return item.ts;
+    if(item.date) return new Date(`${item.date}T12:00:00`).toISOString();
+    return new Date().toISOString();
+  }
+
+  function buildClientes(cortes, reservas, barberos) {
+    const map = new Map();
+    reservas.forEach(r => {
+      if(!r.clienteNombre) return;
+      const key = r.clienteNombre.toLowerCase();
+      const current = map.get(key);
+      map.set(key, {
+        id: key,
+        nombre: r.clienteNombre,
+        tel: r.clienteTel || current?.tel || '',
+        visitas: (current?.visitas || 0) + 1,
+        ultimoServicio: r.servicio || current?.ultimoServicio || '',
+        barberoFav: barberos.find(b => b.nombre === r.barbero)?.id || current?.barberoFav || '',
+        ts: r.fecha || current?.ts || ''
+      });
+    });
+    cortes.forEach(c => {
+      if(!c.clienteNombre) return;
+      const key = c.clienteNombre.toLowerCase();
+      const current = map.get(key);
+      map.set(key, {
+        id: key,
+        nombre: c.clienteNombre,
+        tel: c.clienteTel || current?.tel || '',
+        visitas: (current?.visitas || 0) + 1,
+        ultimoServicio: c.servicio || current?.ultimoServicio || '',
+        barberoFav: c.barbeId || current?.barberoFav || '',
+        ts: c.ts || current?.ts || ''
+      });
+    });
+    return Array.from(map.values());
+  }
+
+  function syncStateFromStorage(keepUi = true) {
+    const activeTab = keepUi ? state.activeTab : 'pos';
+    const barberoActivo = keepUi ? state.barberoActivo : null;
+    servicesData = readStore('krom_services', defaultServicesData);
+    barbersData = readStore('krom_barbers', defaultBarbersData);
+    bookingsData = readStore('krom_bookings', []);
+    salesData = readStore('krom_sales', []);
+
+    state.barberos = barbersData.map(b => ({ id: String(b.id), nombre: b.name, especialidad: b.specialty || 'Barbero', tel: b.wa || '', foto: b.img || null, activo: true }));
+    state.servicios = servicesData.map(s => ({ id: String(s.id), nombre: s.name, precio: Number(s.price) || 0, duracion: minutesFromDuration(s.duration) }));
+    state.cortes = salesData.map((s, index) => {
+      const barber = state.barberos.find(b => b.nombre === s.barber);
+      return { id: String(s.id || `sale-${index}`), barbeId: barber?.id || '', servicio: s.service || 'Servicio', precio: Number(s.amount ?? s.precio) || 0, pago: s.pago || 'Efectivo', clienteNombre: s.client || '', clienteTel: s.phone || '', ts: normalizeDateTime(s) };
+    }).reverse();
+    state.reservas = bookingsData.map((b, index) => ({ id: String(b.id || `booking-${index}`), clienteNombre: b.client || '', clienteTel: b.phone || '', servicio: b.service || '', barbero: b.barber || '', fecha: b.date || '', hora: b.time || '' }));
+    state.clientes = buildClientes(state.cortes, state.reservas, state.barberos);
+    state.activeTab = activeTab;
+    state.barberoActivo = state.barberos.some(b => b.id === barberoActivo) ? barberoActivo : null;
+  }
+
+  function persistServices() {
+    servicesData = state.servicios.map(s => {
+      const existing = servicesData.find(item => String(item.id) === String(s.id)) || {};
+      return { ...existing, id: Number(s.id) || s.id, name: s.nombre, price: Number(s.precio) || 0, duration: `${s.duracion || 30} min` };
+    });
+    localStorage.setItem('krom_services', JSON.stringify(servicesData));
+  }
+
+  function persistBarbers() {
+    barbersData = state.barberos.map(b => {
+      const existing = barbersData.find(item => String(item.id) === String(b.id)) || {};
+      return { ...existing, id: Number(b.id) || b.id, name: b.nombre, specialty: b.especialidad, wa: b.tel || existing.wa || '573000000000', img: b.foto || existing.img || 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&q=80' };
+    });
+    localStorage.setItem('krom_barbers', JSON.stringify(barbersData));
+  }
+
+  syncStateFromStorage(false);
+
+  // ==================== HELPERS ====================
+  function fmtCOP(n) {
+    return '$' + Number(n).toLocaleString('es-CO');
+  }
+  function fmtHora(d) {
+    return new Date(d).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+  }
+  function fmtFecha(d) {
+    return new Date(d).toLocaleDateString('es-CO', { day: '2-digit', month: 'short' });
+  }
+  function todayStart() {
+    const d = new Date(); d.setHours(0,0,0,0); return d;
+  }
+  function getId() { return '_' + Math.random().toString(36).substr(2,9); }
+
+  // ==================== PERSISTENCIA ====================
+  async function saveCorte(corte) {
+    const barber = state.barberos.find(b => b.id === corte.barbeId);
+    salesData.push({
+      id: corte.id,
+      date: new Date(corte.ts).toISOString().split('T')[0],
+      service: corte.servicio,
+      barber: barber?.nombre || '',
+      amount: Number(corte.precio) || 0,
+      pago: corte.pago,
+      client: corte.clienteNombre || '',
+      phone: corte.clienteTel || '',
+      createdAt: corte.ts
+    });
+    localStorage.setItem('krom_sales', JSON.stringify(salesData));
+    state.cortes.unshift(corte);
+    trackCliente(corte);
+    renderAll();
+  }
+
+  function trackCliente(corte) {
+    if(!corte.clienteNombre) return;
+    let c = state.clientes.find(x => x.nombre.toLowerCase() === corte.clienteNombre.toLowerCase());
+    if(!c) {
+      c = { id: getId(), nombre: corte.clienteNombre, tel: corte.clienteTel || '', visitas: 0, ultimoServicio: '', barberoFav: corte.barbeId, ts: corte.ts };
+      state.clientes.push(c);
+    }
+    c.visitas++;
+    c.ultimoServicio = corte.servicio;
+    c.barberoFav = corte.barbeId;
+    c.ts = corte.ts;
+  }
+
+  async function loadFromFirebase() {
+    syncStateFromStorage();
+    renderAll();
+  }
+
+  // ==================== RENDER ENGINE ====================
+  function renderAll() {
+    updateStats();
+    renderContent();
+  }
+
+  function updateStats() {
+    const hoy = state.cortes.filter(c => new Date(c.ts) >= todayStart());
+    const ingHoy = hoy.reduce((s,c) => s + Number(c.precio), 0);
+    const ingTotal = state.cortes.reduce((s,c) => s + Number(c.precio), 0);
+
+    document.getElementById('stat-cortes-hoy').textContent = hoy.length;
+    document.getElementById('stat-ing-hoy').textContent = fmtCOP(ingHoy);
+    document.getElementById('stat-ing-total').textContent = fmtCOP(ingTotal);
+    document.getElementById('stat-total-cortes').textContent = state.cortes.length;
+  }
+
+  function renderContent() {
+    const tab = state.activeTab;
+    const el = document.getElementById('main-content');
+
+    if(tab === 'pos') el.innerHTML = renderPOS();
+    else if(tab === 'ventas') el.innerHTML = renderVentas();
+    else if(tab === 'clientes') el.innerHTML = renderClientes();
+    else if(tab === 'servicios') el.innerHTML = renderServicios();
+    else if(tab === 'barberos') el.innerHTML = renderBarberos();
+
+    attachHandlers();
+  }
+
+  // ==================== POS RÁPIDO ====================
+  function renderPOS() {
+    const barberoSel = state.barberoActivo;
+    return `
+    <div class="pos-layout">
+      <!-- Panel izquierdo: Selección de barbero -->
+      <div class="pos-left">
+        <h2 class="section-title">¿Quién registra?</h2>
+        <div class="barber-grid">
+          ${state.barberos.map(b => `
+            <button class="barber-card ${barberoSel === b.id ? 'active' : ''}" data-action="sel-barbero" data-id="${b.id}">
+              <div class="barber-avatar">${b.nombre.split(' ').map(x=>x[0]).join('')}</div>
+              <span class="barber-name">${b.nombre}</span>
+              <span class="barber-esp">${b.especialidad}</span>
+            </button>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Panel derecho: Formulario rápido -->
+      <div class="pos-right">
+        <h2 class="section-title">Registrar Corte</h2>
+        ${barberoSel ? `
+        <div class="pos-form">
+          <div class="barbero-selected-tag">
+            <span class="dot-green"></span>
+            Registrando como: <strong>${state.barberos.find(b=>b.id===barberoSel)?.nombre}</strong>
+          </div>
+
+          <div class="form-group">
+            <label>SERVICIO</label>
+            <div class="service-pills">
+              ${state.servicios.map(s => `
+                <button class="service-pill" data-action="sel-servicio" data-id="${s.id}" data-precio="${s.precio}" data-nombre="${s.nombre}">
+                  <span class="pill-name">${s.nombre}</span>
+                  <span class="pill-price">${fmtCOP(s.precio)}</span>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>MONTO COBRADO (COP)</label>
+              <input id="inp-precio" type="number" class="inp" placeholder="0" />
+            </div>
+            <div class="form-group">
+              <label>MÉTODO DE PAGO</label>
+              <select id="inp-pago" class="inp">
+                <option>Efectivo</option>
+                <option>Nequi</option>
+                <option>Daviplata</option>
+                <option>Bancolombia</option>
+                <option>Tarjeta</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>CLIENTE (opcional)</label>
+              <input id="inp-cliente" type="text" class="inp" placeholder="Nombre del cliente" />
+            </div>
+            <div class="form-group">
+              <label>SERVICIO DESCRIPCIÓN</label>
+              <input id="inp-servicio-txt" type="text" class="inp" placeholder="Corte Clásico..." />
+            </div>
+          </div>
+
+          <button class="btn-primary btn-full" data-action="registrar-corte">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            REGISTRAR CORTE
+          </button>
+        </div>
+
+        <!-- Últimos cortes del barbero -->
+        <div class="recent-section">
+          <h3 class="sub-title">Mis cortes de hoy</h3>
+          <div class="recent-list">
+            ${state.cortes.filter(c => c.barbeId === barberoSel && new Date(c.ts) >= todayStart()).slice(0,5).map(c => `
+              <div class="recent-item">
+                <div class="recent-info">
+                  <span class="recent-servicio">${c.servicio}</span>
+                  <span class="recent-hora">${fmtHora(c.ts)}</span>
+                </div>
+                <span class="recent-precio">${fmtCOP(c.precio)}</span>
+                <span class="recent-pago pago-${c.pago?.toLowerCase()}">${c.pago}</span>
+              </div>
+            `).join('') || '<p class="empty-msg">Sin cortes aún hoy</p>'}
+          </div>
+        </div>
+        ` : `
+        <div class="no-barber-msg">
+          <div class="no-barber-icon">✂️</div>
+          <p>Selecciona tu perfil para comenzar a registrar</p>
+        </div>
+        `}
+      </div>
+    </div>
+
+    <!-- Resumen de todos los barberos hoy -->
+    <div class="today-summary">
+      <h2 class="section-title">Resumen del Día — Todos los Barberos</h2>
+      <div class="barber-summary-grid">
+        ${state.barberos.map(b => {
+          const cortesB = state.cortes.filter(c => c.barbeId === b.id && new Date(c.ts) >= todayStart());
+          const totalB = cortesB.reduce((s,c) => s + Number(c.precio), 0);
+          return `
+          <div class="barber-summary-card">
+            <div class="bs-header">
+              <div class="bs-avatar">${b.nombre.split(' ').map(x=>x[0]).join('')}</div>
+              <div>
+                <div class="bs-name">${b.nombre}</div>
+                <div class="bs-esp">${b.especialidad}</div>
+              </div>
+            </div>
+            <div class="bs-stats">
+              <div class="bs-stat">
+                <span class="bs-num">${cortesB.length}</span>
+                <span class="bs-lbl">cortes</span>
+              </div>
+              <div class="bs-stat">
+                <span class="bs-num gold">${fmtCOP(totalB)}</span>
+                <span class="bs-lbl">ingresos</span>
+              </div>
+            </div>
+            <div class="bs-cortes">
+              ${cortesB.slice(0,3).map(c => `<div class="bs-corte-item"><span>${c.servicio}</span><span>${fmtHora(c.ts)}</span><span>${fmtCOP(c.precio)}</span></div>`).join('')}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+    `;
+  }
+
+  // ==================== VENTAS ====================
+  function renderVentas() {
+    const hoy = state.cortes.filter(c => new Date(c.ts) >= todayStart());
+    const ingHoy = hoy.reduce((s,c) => s + Number(c.precio), 0);
+    const ingTotal = state.cortes.reduce((s,c) => s + Number(c.precio), 0);
+
+    // Por método de pago
+    const porPago = {};
+    state.cortes.forEach(c => { porPago[c.pago] = (porPago[c.pago]||0) + Number(c.precio); });
+
+    return `
+    <div class="ventas-layout">
+      <h2 class="section-title">Historial de Ventas</h2>
+
+      <div class="ventas-filters">
+        <button class="filter-btn active" data-action="filter-ventas" data-range="hoy">Hoy</button>
+        <button class="filter-btn" data-action="filter-ventas" data-range="semana">Esta semana</button>
+        <button class="filter-btn" data-action="filter-ventas" data-range="mes">Este mes</button>
+        <button class="filter-btn" data-action="filter-ventas" data-range="todo">Todo</button>
+      </div>
+
+      <!-- Resumen por método de pago -->
+      <div class="pago-summary">
+        ${Object.entries(porPago).map(([pago, total]) => `
+          <div class="pago-card pago-bg-${pago.toLowerCase()}">
+            <span class="pago-method">${pago}</span>
+            <span class="pago-total">${fmtCOP(total)}</span>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>HORA</th><th>BARBERO</th><th>SERVICIO</th><th>CLIENTE</th><th>MONTO</th><th>PAGO</th></tr>
+          </thead>
+          <tbody>
+            ${state.cortes.length === 0 ? `<tr><td colspan="6" class="empty-td">Sin ingresos registrados</td></tr>` :
+              state.cortes.map(c => {
+                const b = state.barberos.find(x => x.id === c.barbeId);
+                return `<tr>
+                  <td><span class="hora-badge">${fmtHora(c.ts)}</span> <span class="fecha-dim">${fmtFecha(c.ts)}</span></td>
+                  <td>${b?.nombre || '—'}</td>
+                  <td>${c.servicio}</td>
+                  <td>${c.clienteNombre || '—'}</td>
+                  <td class="gold">${fmtCOP(c.precio)}</td>
+                  <td><span class="pago-badge pago-${c.pago?.toLowerCase()}">${c.pago}</span></td>
+                </tr>`;
+              }).join('')
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+    `;
+  }
+
+  // ==================== CLIENTES ====================
+  function renderClientes() {
+    return `
+    <div>
+      <h2 class="section-title">Gestión de Clientes</h2>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>NOMBRE</th><th>VISITAS</th><th>ÚLTIMO SERVICIO</th><th>BARBERO FAV.</th><th>ÚLTIMA VISITA</th></tr>
+          </thead>
+          <tbody>
+            ${state.clientes.length === 0 ? `<tr><td colspan="5" class="empty-td">Sin clientes registrados</td></tr>` :
+              state.clientes.sort((a,b) => b.visitas - a.visitas).map(c => {
+                const bFav = state.barberos.find(x => x.id === c.barberoFav);
+                return `<tr>
+                  <td><strong>${c.nombre}</strong></td>
+                  <td><span class="visitas-badge">${c.visitas}</span></td>
+                  <td>${c.ultimoServicio}</td>
+                  <td>${bFav?.nombre || '—'}</td>
+                  <td class="fecha-dim">${fmtFecha(c.ts)}</td>
+                </tr>`;
+              }).join('')
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+    `;
+  }
+
+  // ==================== SERVICIOS ====================
+  function renderServicios() {
+    return `
+    <div>
+      <h2 class="section-title">Editar Servicios y Precios</h2>
+      <div class="servicios-list">
+        ${state.servicios.map(s => `
+          <div class="servicio-row" data-id="${s.id}">
+            <input class="inp inp-sm serv-nombre" type="text" value="${s.nombre}" />
+            <input class="inp inp-sm serv-precio" type="number" value="${s.precio}" />
+            <input class="inp inp-sm serv-duracion" type="text" value="${s.duracion} min" />
+            <button class="btn-gold-sm" data-action="save-servicio" data-id="${s.id}">GUARDAR</button>
+            <button class="btn-red-sm" data-action="del-servicio" data-id="${s.id}">✕</button>
+          </div>
+        `).join('')}
+        <div class="servicio-row nuevo-row">
+          <input id="new-serv-nombre" class="inp inp-sm" type="text" placeholder="Nuevo Servicio" />
+          <input id="new-serv-precio" class="inp inp-sm" type="number" placeholder="Precio" />
+          <input id="new-serv-duracion" class="inp inp-sm" type="text" placeholder="Duración (min)" />
+          <button class="btn-primary-sm" data-action="add-servicio">+ AGREGAR</button>
+        </div>
+      </div>
+    </div>
+    `;
+  }
+
+  // ==================== BARBEROS ====================
+  function renderBarberos() {
+    return `
+    <div>
+      <h2 class="section-title">Gestión de Barberos</h2>
+      <div class="barberos-list">
+        ${state.barberos.map(b => `
+          <div class="barbero-row" data-id="${b.id}">
+            <div class="barb-avatar-big">${b.nombre.split(' ').map(x=>x[0]).join('')}</div>
+            <div class="barb-fields">
+              <input class="inp barb-nombre" type="text" value="${b.nombre}" />
+              <input class="inp barb-esp" type="text" value="${b.especialidad}" />
+              <input class="inp barb-tel" type="text" value="${b.tel}" placeholder="WhatsApp" />
+            </div>
+            <div class="barb-actions">
+              <button class="btn-gold-sm" data-action="save-barbero" data-id="${b.id}">GUARDAR</button>
+              <button class="btn-red-sm" data-action="del-barbero" data-id="${b.id}">ELIMINAR</button>
+            </div>
+          </div>
+        `).join('')}
+        <div class="barbero-row nuevo-barb-row">
+          <div class="barb-avatar-big dim">+</div>
+          <div class="barb-fields">
+            <input id="new-barb-nombre" class="inp" type="text" placeholder="Nombre Barbero" />
+            <input id="new-barb-esp" class="inp" type="text" placeholder="Especialidad" />
+            <input id="new-barb-tel" class="inp" type="text" placeholder="WhatsApp (ej: 3001234567)" />
+          </div>
+          <div class="barb-actions">
+            <button class="btn-primary-sm" data-action="add-barbero">+ AGREGAR</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    `;
+  }
+
+  // ==================== EVENT HANDLERS ====================
+  function attachHandlers() {
+    document.querySelectorAll('[data-action]').forEach(el => {
+      el.addEventListener('click', handleAction);
+    });
+  }
+
+  let selectedServiceId = null;
+
+  function handleAction(e) {
+    const action = e.currentTarget.dataset.action;
+    const id = e.currentTarget.dataset.id;
+
+    if(action === 'sel-barbero') {
+      state.barberoActivo = state.barberoActivo === id ? null : id;
+      selectedServiceId = null;
+      renderContent();
+    }
+    else if(action === 'sel-servicio') {
+      document.querySelectorAll('.service-pill').forEach(p => p.classList.remove('selected'));
+      e.currentTarget.classList.add('selected');
+      selectedServiceId = id;
+      const precio = e.currentTarget.dataset.precio;
+      const nombre = e.currentTarget.dataset.nombre;
+      document.getElementById('inp-precio').value = precio;
+      document.getElementById('inp-servicio-txt').value = nombre;
+    }
+    else if(action === 'registrar-corte') {
+      registrarCorte();
+    }
+    else if(action === 'save-servicio') {
+      const row = document.querySelector(`.servicio-row[data-id="${id}"]`);
+      const s = state.servicios.find(x => x.id === id);
+      if(s && row) {
+        s.nombre = row.querySelector('.serv-nombre').value;
+        s.precio = Number(row.querySelector('.serv-precio').value);
+        s.duracion = parseInt(row.querySelector('.serv-duracion').value) || 30;
+        persistServices();
+        showToast('Servicio guardado ✓');
+        renderContent();
+      }
+    }
+    else if(action === 'del-servicio') {
+      state.servicios = state.servicios.filter(x => x.id !== id);
+      persistServices();
+      renderContent();
+    }
+    else if(action === 'add-servicio') {
+      const nombre = document.getElementById('new-serv-nombre').value.trim();
+      const precio = Number(document.getElementById('new-serv-precio').value);
+      const duracion = parseInt(document.getElementById('new-serv-duracion').value) || 30;
+      if(nombre && precio) {
+        state.servicios.push({ id: String(Date.now()), nombre, precio, duracion });
+        persistServices();
+        renderContent();
+        showToast('Servicio agregado ✓');
+      }
+    }
+    else if(action === 'save-barbero') {
+      const row = document.querySelector(`.barbero-row[data-id="${id}"]`);
+      const b = state.barberos.find(x => x.id === id);
+      if(b && row) {
+        b.nombre = row.querySelector('.barb-nombre').value;
+        b.especialidad = row.querySelector('.barb-esp').value;
+        b.tel = row.querySelector('.barb-tel').value;
+        persistBarbers();
+        showToast('Barbero guardado ✓');
+        renderContent();
+      }
+    }
+    else if(action === 'del-barbero') {
+      if(confirm('¿Eliminar este barbero?')) {
+        state.barberos = state.barberos.filter(x => x.id !== id);
+        if(state.barberoActivo === id) state.barberoActivo = null;
+        persistBarbers();
+        renderContent();
+      }
+    }
+    else if(action === 'add-barbero') {
+      const nombre = document.getElementById('new-barb-nombre').value.trim();
+      const esp = document.getElementById('new-barb-esp').value.trim();
+      const tel = document.getElementById('new-barb-tel').value.trim();
+      if(nombre) {
+        state.barberos.push({ id: String(Date.now()), nombre, especialidad: esp, tel, foto: null, activo: true });
+        persistBarbers();
+        renderContent();
+        showToast('Barbero agregado ✓');
+      }
+    }
+    else if(action === 'nav') {
+      state.activeTab = id;
+      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+      e.currentTarget.classList.add('active');
+      renderContent();
+    }
+  }
+
+  async function registrarCorte() {
+    const precio = Number(document.getElementById('inp-precio')?.value);
+    const pago = document.getElementById('inp-pago')?.value;
+    const clienteNombre = document.getElementById('inp-cliente')?.value?.trim();
+    const servicio = document.getElementById('inp-servicio-txt')?.value?.trim() || 'Servicio';
+
+    if(!precio || !state.barberoActivo) {
+      showToast('Selecciona barbero y monto ⚠️', 'warn');
+      return;
+    }
+
+    const corte = {
+      id: getId(),
+      barbeId: state.barberoActivo,
+      servicio,
+      precio,
+      pago,
+      clienteNombre,
+      ts: new Date().toISOString(),
+    };
+
+    await saveCorte(corte);
+    showToast(`Corte registrado — ${fmtCOP(precio)} ✓`);
+    // limpiar campos
+    document.getElementById('inp-precio').value = '';
+    document.getElementById('inp-cliente').value = '';
+    document.getElementById('inp-servicio-txt').value = '';
+    selectedServiceId = null;
+    document.querySelectorAll('.service-pill').forEach(p => p.classList.remove('selected'));
+  }
+
+  function showToast(msg, type='ok') {
+    const t = document.createElement('div');
+    t.className = `toast toast-${type}`;
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.classList.add('show'), 10);
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 2800);
+  }
+
+  // ==================== INIT ====================
+  window.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.nav-link').forEach(l => {
+      l.addEventListener('click', (e) => {
+        state.activeTab = l.dataset.id;
+        document.querySelectorAll('.nav-link').forEach(x => x.classList.remove('active'));
+        l.classList.add('active');
+        renderContent();
+      });
+    });
+    loadFromFirebase();
+    renderAll();
+  });
+</script>
+
+<style>
+  :root {
+    --gold: oklch(74% 0.105 84);
+    --gold-light: oklch(82% 0.095 86);
+    --gold-dim: oklch(49% 0.07 82);
+    --bg: oklch(13% 0.015 83);
+    --bg2: oklch(16% 0.018 83);
+    --bg3: oklch(20% 0.018 83);
+    --bg4: oklch(25% 0.019 83);
+    --border: oklch(74% 0.105 84 / 0.18);
+    --border-soft: oklch(74% 0.105 84 / 0.09);
+    --border-bright: oklch(74% 0.105 84 / 0.42);
+    --text: oklch(90% 0.026 83);
+    --text-dim: oklch(62% 0.026 83);
+    --red: oklch(58% 0.14 29);
+    --green: oklch(66% 0.145 150);
+    --orange: oklch(70% 0.14 58);
+    --radius: 8px;
+    --shadow-soft: 0 18px 48px oklch(7% 0.018 83 / 0.34);
+    --shadow-tiny: 0 8px 24px oklch(7% 0.018 83 / 0.22);
+    --focus: 0 0 0 3px oklch(74% 0.105 84 / 0.18);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { min-height: 100%; }
+
+  body {
+    background:
+      radial-gradient(circle at 18% -8%, oklch(35% 0.058 84 / 0.28), transparent 34rem),
+      linear-gradient(180deg, oklch(15% 0.016 83), var(--bg) 22rem);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    letter-spacing: 0;
+  }
+
+  button, input, select { font: inherit; }
+  button, .inp { -webkit-tap-highlight-color: transparent; }
+  button:focus-visible, .inp:focus-visible {
+    outline: none;
+    box-shadow: var(--focus);
+  }
+
+  .nav {
+    background: oklch(15% 0.017 83 / 0.94);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 32px;
+    min-height: 62px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    gap: 16px;
+    backdrop-filter: blur(16px);
+  }
+  .nav-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 2.4px;
+    color: var(--gold);
+    margin-right: 28px;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .nav-brand span {
+    color: var(--text-dim);
+    font-family: 'Outfit', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.6px;
+  }
+  .nav-links { display: flex; gap: 4px; flex: 1; overflow-x: auto; scrollbar-width: thin; }
+  .nav-link {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-dim);
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.4px;
+    padding: 0 15px;
+    min-height: 38px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: color 180ms ease, border-color 180ms ease, background 180ms ease, transform 180ms ease;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .nav-link:hover { color: var(--text); background: oklch(74% 0.105 84 / 0.06); }
+  .nav-link.active {
+    color: var(--gold);
+    border-color: var(--border-bright);
+    background: oklch(74% 0.105 84 / 0.10);
+  }
+  .nav-back {
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: color 180ms ease, border-color 180ms ease, background 180ms ease;
+  }
+  .nav-back:hover {
+    color: var(--gold);
+    border-color: var(--border-bright);
+    background: oklch(74% 0.105 84 / 0.08);
+  }
+
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--border-soft);
+    border-bottom: 1px solid var(--border);
+  }
+  .stat-card {
+    background: linear-gradient(180deg, oklch(18% 0.018 83), var(--bg2));
+    padding: 20px 24px 18px;
+    text-align: center;
+    min-width: 0;
+  }
+  .stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 34px;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat-lbl {
+    font-size: 9px;
+    letter-spacing: 1.8px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .page { padding: 34px 32px 48px; max-width: 1420px; margin: 0 auto; }
+
+  .pos-layout {
+    display: grid;
+    grid-template-columns: minmax(250px, 300px) 1fr;
+    gap: 26px;
+    margin-bottom: 42px;
+    align-items: start;
+  }
+
+  .barber-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
+  .barber-card {
+    background: linear-gradient(180deg, var(--bg3), oklch(18% 0.018 83));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 15px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+    transition: border-color 180ms ease, background 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+    width: 100%;
+    color: inherit;
+  }
+  .barber-card:hover {
+    border-color: var(--border-bright);
+    background: var(--bg4);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-tiny);
+  }
+  .barber-card.active {
+    border-color: var(--gold);
+    background: linear-gradient(180deg, oklch(74% 0.105 84 / 0.13), oklch(74% 0.105 84 / 0.07));
+  }
+  .barber-avatar {
+    width: 42px; height: 42px;
+    background: var(--bg4);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    color: var(--gold);
+    flex-shrink: 0;
+    font-weight: 600;
+  }
+  .barber-card.active .barber-avatar { background: var(--gold); color: var(--bg); border-color: var(--gold); }
+  .barber-name { font-size: 13px; font-weight: 600; color: var(--text); display: block; line-height: 1.25; }
+  .barber-esp { font-size: 11px; color: var(--text-dim); display: block; margin-top: 2px; }
+
+  .pos-form {
+    background: linear-gradient(180deg, var(--bg3), oklch(17% 0.018 83));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-top: 18px;
+    box-shadow: var(--shadow-soft);
+  }
+  .barbero-selected-tag {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--text-dim);
+    background: oklch(66% 0.145 150 / 0.10);
+    border: 1px solid oklch(66% 0.145 150 / 0.28);
+    border-radius: 999px;
+    padding: 9px 13px;
+    margin-bottom: 20px;
+    width: fit-content;
+    max-width: 100%;
+  }
+  .dot-green { width: 7px; height: 7px; background: var(--green); border-radius: 50%; display: inline-block; box-shadow: 0 0 0 4px oklch(66% 0.145 150 / 0.12); }
+  .barbero-selected-tag strong { color: var(--text); font-weight: 600; }
+
+  .form-group { margin-bottom: 16px; min-width: 0; }
+  .form-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+  label {
+    font-size: 9px;
+    letter-spacing: 1.45px;
+    color: var(--text-dim);
+    display: block;
+    margin-bottom: 7px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .inp {
+    background: oklch(12% 0.014 83);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    padding: 11px 13px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    width: 100%;
+    transition: border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+    outline: none;
+  }
+  .inp:hover { border-color: oklch(74% 0.105 84 / 0.30); }
+  .inp:focus { border-color: var(--gold); background: oklch(14% 0.014 83); }
+  .inp::placeholder { color: oklch(55% 0.025 83); }
+  .inp-sm { padding: 9px 11px; font-size: 13px; }
+  select.inp { cursor: pointer; }
+
+  .service-pills { display: grid; grid-template-columns: repeat(auto-fit, minmax(126px, 1fr)); gap: 9px; }
+  .service-pill {
+    background: oklch(12% 0.014 83);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 11px 12px;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: flex-start;
+    transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+    min-width: 0;
+    color: inherit;
+  }
+  .service-pill:hover { border-color: var(--border-bright); transform: translateY(-1px); }
+  .service-pill.selected { border-color: var(--gold); background: oklch(74% 0.105 84 / 0.11); }
+  .pill-name { font-size: 12px; color: var(--text); margin-bottom: 3px; line-height: 1.25; }
+  .pill-price { font-size: 12px; color: var(--gold); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  .btn-primary {
+    background: linear-gradient(180deg, var(--gold-light), var(--gold));
+    color: var(--bg);
+    border: 1px solid oklch(82% 0.095 86 / 0.65);
+    padding: 14px 24px;
+    border-radius: var(--radius);
+    font-family: 'Outfit', sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.35px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 8px; justify-content: center;
+    transition: filter 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+    text-transform: uppercase;
+    box-shadow: 0 12px 26px oklch(7% 0.018 83 / 0.25);
+  }
+  .btn-primary:hover { filter: brightness(1.06); transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-full { width: 100%; margin-top: 8px; }
+
+  .btn-gold-sm, .btn-red-sm, .btn-primary-sm {
+    border-radius: 6px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: background 180ms ease, color 180ms ease, border-color 180ms ease, transform 180ms ease;
+  }
+  .btn-gold-sm {
+    background: transparent; border: 1px solid var(--gold); color: var(--gold);
+    padding: 7px 14px; font-weight: 700; letter-spacing: 1px;
+  }
+  .btn-gold-sm:hover { background: oklch(74% 0.105 84 / 0.12); transform: translateY(-1px); }
+  .btn-red-sm {
+    background: transparent; border: 1px solid oklch(58% 0.14 29 / 0.78); color: var(--red);
+    padding: 7px 14px;
+  }
+  .btn-red-sm:hover { background: oklch(58% 0.14 29 / 0.13); color: oklch(73% 0.12 29); }
+  .btn-primary-sm {
+    background: var(--gold); color: var(--bg);
+    border: 1px solid var(--gold); padding: 7px 16px;
+    font-weight: 800; letter-spacing: 1px;
+  }
+
+  .recent-section { margin-top: 22px; }
+  .sub-title { font-size: 11px; letter-spacing: 1.8px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 12px; font-weight: 700; }
+  .recent-list { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .recent-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; border-bottom: 1px solid var(--border-soft);
+  }
+  .recent-item:last-child { border-bottom: none; }
+  .recent-info { flex: 1; min-width: 0; }
+  .recent-servicio { font-size: 13px; color: var(--text); display: block; font-weight: 600; }
+  .recent-hora { font-size: 11px; color: var(--text-dim); }
+  .recent-precio { color: var(--gold); font-weight: 700; font-size: 13px; font-variant-numeric: tabular-nums; }
+  .recent-pago { font-size: 10px; padding: 3px 8px; border-radius: 999px; background: var(--bg4); color: var(--text-dim); }
+
+  .no-barber-msg {
+    margin-top: 18px; background: linear-gradient(180deg, var(--bg3), oklch(17% 0.018 83));
+    border: 1px dashed var(--border-bright);
+    border-radius: var(--radius); padding: 58px 24px; text-align: center; color: var(--text-dim);
+    box-shadow: var(--shadow-tiny);
+  }
+  .no-barber-icon { font-size: 38px; margin-bottom: 12px; opacity: 0.55; }
+
+  .today-summary { margin-top: 8px; }
+  .barber-summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 18px; }
+  .barber-summary-card {
+    background: linear-gradient(180deg, var(--bg3), oklch(18% 0.018 83));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    transition: border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+  }
+  .barber-summary-card:hover { border-color: var(--border-bright); transform: translateY(-1px); box-shadow: var(--shadow-tiny); }
+  .bs-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .bs-avatar {
+    width: 44px; height: 44px; background: var(--bg4); border: 1px solid var(--border);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-family: 'Cormorant Garamond', serif; font-size: 16px; color: var(--gold); flex-shrink: 0; font-weight: 600;
+  }
+  .bs-name { font-size: 14px; font-weight: 700; }
+  .bs-esp { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .bs-stats { display: flex; gap: 12px; margin-bottom: 13px; }
+  .bs-stat { text-align: left; background: oklch(12% 0.014 83 / 0.58); border: 1px solid var(--border-soft); border-radius: 7px; padding: 9px 11px; flex: 1; min-width: 0; }
+  .bs-num { font-family: 'Cormorant Garamond', serif; font-size: 24px; display: block; line-height: 1; font-variant-numeric: tabular-nums; }
+  .bs-num.gold { color: var(--gold); }
+  .bs-lbl { font-size: 9px; letter-spacing: 1.4px; color: var(--text-dim); text-transform: uppercase; font-weight: 700; }
+  .bs-corte-item {
+    display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center;
+    padding: 7px 0; border-bottom: 1px solid var(--border-soft); font-size: 12px; color: var(--text-dim);
+  }
+  .bs-corte-item:last-child { border-bottom: none; }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px; font-weight: 500; color: var(--text);
+    margin-bottom: 20px; padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    line-height: 1.1;
+  }
+  .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); background: var(--bg2); box-shadow: var(--shadow-tiny); }
+  .data-table { width: 100%; border-collapse: collapse; min-width: 760px; }
+  .data-table thead tr { background: oklch(20% 0.018 83); }
+  .data-table th {
+    font-size: 9px; letter-spacing: 1.8px; color: var(--text-dim);
+    text-transform: uppercase; padding: 13px 16px; text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-weight: 800;
+    white-space: nowrap;
+  }
+  .data-table td { padding: 12px 16px; border-bottom: 1px solid var(--border-soft); font-size: 13px; vertical-align: middle; }
+  .data-table tbody tr:last-child td { border-bottom: none; }
+  .data-table tbody tr:hover td { background: oklch(74% 0.105 84 / 0.045); }
+  .empty-td { text-align: center; color: var(--text-dim); padding: 42px !important; }
+  .gold { color: var(--gold); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .hora-badge { font-size: 13px; color: var(--text); font-weight: 600; }
+  .fecha-dim { font-size: 11px; color: var(--text-dim); }
+  .visitas-badge {
+    background: oklch(74% 0.105 84 / 0.13); color: var(--gold);
+    border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 800;
+  }
+  .pago-badge {
+    font-size: 10px; padding: 4px 9px; border-radius: 999px;
+    background: var(--bg4); color: var(--text-dim); display: inline-block;
+    border: 1px solid var(--border-soft);
+  }
+
+  .ventas-filters { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .filter-btn {
+    background: var(--bg3); border: 1px solid var(--border);
+    color: var(--text-dim); padding: 8px 16px; border-radius: 999px;
+    font-size: 12px; cursor: pointer; transition: all 180ms ease;
+    font-weight: 700;
+  }
+  .filter-btn:hover, .filter-btn.active { border-color: var(--gold); color: var(--gold); background: oklch(74% 0.105 84 / 0.10); }
+  .pago-summary { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+  .pago-card {
+    background: linear-gradient(180deg, var(--bg3), oklch(18% 0.018 83));
+    border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 13px 18px;
+    display: flex; flex-direction: column; gap: 5px;
+    min-width: 146px;
+  }
+  .pago-method { font-size: 9px; letter-spacing: 1.8px; color: var(--text-dim); text-transform: uppercase; font-weight: 800; }
+  .pago-total { font-family: 'Cormorant Garamond', serif; font-size: 24px; color: var(--gold); line-height: 1; font-variant-numeric: tabular-nums; }
+
+  .servicios-list { display: flex; flex-direction: column; gap: 9px; }
+  .servicio-row {
+    display: grid; grid-template-columns: minmax(180px, 1fr) 120px 120px 100px 40px;
+    gap: 9px; align-items: center;
+    background: linear-gradient(180deg, var(--bg3), oklch(18% 0.018 83));
+    border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 12px 16px;
+  }
+  .nuevo-row { border-style: dashed; background: oklch(20% 0.018 83 / 0.68); }
+
+  .barberos-list { display: flex; flex-direction: column; gap: 12px; }
+  .barbero-row {
+    display: flex; align-items: center; gap: 16px;
+    background: linear-gradient(180deg, var(--bg3), oklch(18% 0.018 83));
+    border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 20px;
+  }
+  .nuevo-barb-row { border-style: dashed; background: oklch(20% 0.018 83 / 0.68); }
+  .barb-avatar-big {
+    width: 52px; height: 52px; flex-shrink: 0;
+    background: var(--bg4); border: 1px solid var(--border);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--gold); font-weight: 600;
+  }
+  .barb-avatar-big.dim { color: var(--text-dim); }
+  .barb-fields { flex: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; min-width: 0; }
+  .barb-actions { display: flex; gap: 8px; flex-direction: column; }
+
+  .empty-msg { color: var(--text-dim); font-size: 12px; padding: 16px; text-align: center; }
+
+  .toast {
+    position: fixed; bottom: 32px; right: 32px; z-index: 9999;
+    background: var(--bg3); border: 1px solid var(--gold);
+    color: var(--gold); padding: 13px 20px; border-radius: var(--radius);
+    font-size: 13px; opacity: 0; transform: translateY(12px);
+    transition: opacity 240ms ease, transform 240ms ease; pointer-events: none;
+    box-shadow: var(--shadow-soft);
+  }
+  .toast.toast-warn { border-color: var(--orange); color: var(--orange); }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 980px) {
+    .nav { padding: 12px 18px; align-items: flex-start; flex-direction: column; gap: 10px; }
+    .nav-brand { margin-right: 0; }
+    .nav-links { width: 100%; padding-bottom: 2px; }
+    .stats-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .page { padding: 26px 18px 40px; }
+    .pos-layout { grid-template-columns: 1fr; gap: 22px; }
+    .barber-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  }
+
+  @media (max-width: 680px) {
+    .stats-bar { grid-template-columns: 1fr 1fr; }
+    .stat-card { padding: 16px 12px; }
+    .stat-num { font-size: 28px; }
+    .section-title { font-size: 23px; }
+    .form-row, .barb-fields, .servicio-row { grid-template-columns: 1fr; }
+    .service-pills { grid-template-columns: 1fr; }
+    .barbero-row { align-items: flex-start; flex-direction: column; }
+    .barb-actions { width: 100%; flex-direction: row; }
+    .barb-actions button { flex: 1; }
+    .toast { left: 18px; right: 18px; bottom: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand">KRÓM <span>· ADMIN</span></div>
+  <div class="nav-links">
+    <button class="nav-link active" data-id="pos">✂ POS Rápido</button>
+    <button class="nav-link" data-id="ventas">Ventas</button>
+    <button class="nav-link" data-id="clientes">Clientes</button>
+    <button class="nav-link" data-id="servicios">Servicios</button>
+    <button class="nav-link" data-id="barberos">Barberos</button>
+  </div>
+  <a class="nav-back" href="barberia (3).html">Ver sitio</a>
+</nav>
+
+<div class="stats-bar">
+  <div class="stat-card">
+    <div class="stat-num" id="stat-cortes-hoy">0</div>
+    <div class="stat-lbl">Cortes Hoy</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" id="stat-ing-hoy">$0</div>
+    <div class="stat-lbl">Ingresos Hoy</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" id="stat-total-cortes">0</div>
+    <div class="stat-lbl">Total Cortes</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" id="stat-ing-total">$0</div>
+    <div class="stat-lbl">Ingresos Totales</div>
+  </div>
+</div>
+
+<div class="page">
+  <div id="main-content"></div>
+</div>
+
+</body>
+</html>

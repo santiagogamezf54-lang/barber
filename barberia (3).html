@@ -2335,6 +2335,7 @@
     <a href="#gallery" onclick="document.getElementById('mobileMenu').classList.remove('open')">Galería</a>
     <a href="#location" onclick="document.getElementById('mobileMenu').classList.remove('open')">Ubicación</a>
     <a href="#contact" onclick="document.getElementById('mobileMenu').classList.remove('open')">Contacto</a>
+    <a href="admin.html" onclick="document.getElementById('mobileMenu').classList.remove('open')">Admin</a>
     <a href="#" onclick="openModal();document.getElementById('mobileMenu').classList.remove('open');return false;"
       style="color:var(--gold);border:1px solid var(--gold);padding:0.75rem 2rem;font-size:0.9rem">Reservar Cita</a>
   </div>
@@ -3110,9 +3111,7 @@
 
       // ============ ADMIN ============
       function openAdmin() {
-        document.getElementById('adminOverlay').classList.add('open');
-        document.getElementById('adminLogin').style.display = 'flex';
-        document.getElementById('adminDashboard').style.display = 'none';
+        window.location.href = 'admin.html';
       }
 
       function closeAdmin() { document.getElementById('adminOverlay').classList.remove('open'); }
